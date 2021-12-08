@@ -170,6 +170,7 @@ void FileParser::parseService(FileParser::Pkt_Hdr *PktData)
 
             // Смотрим все служебные пакеты и запоминаем номер последнего пакета от абонента
             if ( (PktData->Data_type == PKT_TYPE_CTS)
+                 || (PktData->Data_type == PKT_TYPE_RTS)
                  || (PktData->Data_type == PKT_TYPE_ACK)
                  || (PktData->Data_type == PKT_TYPE_NACK)
                  || (PktData->Data_type == PKT_TYPE_DATA_MAP)

@@ -31,12 +31,12 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Tx</string>
+        <string>Rx</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Rx</string>
+        <string>Tx</string>
        </property>
       </column>
       <column>

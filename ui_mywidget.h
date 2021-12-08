@@ -91,9 +91,9 @@ public:
     {
         MyWidget->setWindowTitle(QCoreApplication::translate("MyWidget", "ParseWireshark", nullptr));
         QTableWidgetItem *___qtablewidgetitem = m_table->horizontalHeaderItem(0);
-        ___qtablewidgetitem->setText(QCoreApplication::translate("MyWidget", "Tx", nullptr));
+        ___qtablewidgetitem->setText(QCoreApplication::translate("MyWidget", "Rx", nullptr));
         QTableWidgetItem *___qtablewidgetitem1 = m_table->horizontalHeaderItem(1);
-        ___qtablewidgetitem1->setText(QCoreApplication::translate("MyWidget", "Rx", nullptr));
+        ___qtablewidgetitem1->setText(QCoreApplication::translate("MyWidget", "Tx", nullptr));
         QTableWidgetItem *___qtablewidgetitem2 = m_table->horizontalHeaderItem(2);
         ___qtablewidgetitem2->setText(QCoreApplication::translate("MyWidget", "numPkt", nullptr));
         QTableWidgetItem *___qtablewidgetitem3 = m_table->horizontalHeaderItem(3);

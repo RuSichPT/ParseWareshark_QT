@@ -72,11 +72,11 @@ void MyWidget::printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts)
         foreach (const auto &missedPkt, missedPkts)
         {
             // Tx ячейка
-            QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(missedPkt.addr));
-            txItem->setTextAlignment(Qt::AlignCenter);
+            QTableWidgetItem *rxItem = new QTableWidgetItem(QString::number(missedPkt.addr));
+            rxItem->setTextAlignment(Qt::AlignCenter);
             // Кол-во строк
             ui->m_table->setRowCount(missedPkt.PktNumbers.size()+ui->m_table->rowCount());
-            ui->m_table->setItem(row,TX_COLUMN,txItem);
+            ui->m_table->setItem(row,RX_COLUMN,rxItem);
 
             foreach (const auto &PktNumbers, missedPkt.PktNumbers)
             {
@@ -85,16 +85,16 @@ void MyWidget::printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts)
                 int numbFrameBeac = PktNumbers.numbFrameBeac;
 
                 // Создаем ячейки для таблицы
-                QTableWidgetItem *rxItem = new QTableWidgetItem(QString::number(addrfrom));
+                QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(addrfrom));
                 QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(PktNumber));
                 QTableWidgetItem *beacNumbItem = new QTableWidgetItem(QString::number(numbFrameBeac));
 
                 ptkNumbItem->setTextAlignment(Qt::AlignCenter);
-                rxItem->setTextAlignment(Qt::AlignCenter);
+                txItem->setTextAlignment(Qt::AlignCenter);
                 beacNumbItem->setTextAlignment(Qt::AlignCenter);
 
                 // Вставляем ячейки в таблицу
-                ui->m_table->setItem(row, RX_COLUMN, rxItem);
+                ui->m_table->setItem(row, TX_COLUMN, txItem);
                 ui->m_table->setItem(row, PKT_NUMB_COLUMN, ptkNumbItem);
                 ui->m_table->setItem(row, BEAC_NUMB_COLUMN, beacNumbItem);
                 row++;

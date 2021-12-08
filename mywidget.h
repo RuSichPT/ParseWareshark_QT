@@ -21,8 +21,8 @@ class MyWidget : public QMainWindow
 private:
     enum TableColumns
     {
-        TX_COLUMN,
         RX_COLUMN,
+        TX_COLUMN,
         PKT_NUMB_COLUMN,
         BEAC_NUMB_COLUMN,
         COUNT_COLUMNS
