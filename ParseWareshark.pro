@@ -16,13 +16,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    fileparser.cpp \
-    main.cpp \
-    mywidget.cpp
+    src/fileparser.cpp \
+    src/main.cpp \
+    src/mywidget.cpp
 
 HEADERS += \
-    fileparser.h \
-    mywidget.h
+    inc/MAC_pkts_format.h \
+    inc/fileparser.h \
+    inc/mywidget.h \
+    inc/required.h \
 
 FORMS += \
     mywidget.ui

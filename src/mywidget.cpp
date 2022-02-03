@@ -1,4 +1,4 @@
-#include "mywidget.h"
+#include "inc/mywidget.h"
 #include "ui_mywidget.h"
 #include <QString>
 #include <QFileDialog>

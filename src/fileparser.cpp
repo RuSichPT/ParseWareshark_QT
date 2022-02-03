@@ -1,5 +1,5 @@
-#include "fileparser.h"
-#include "mywidget.h"
+#include "inc/fileparser.h"
+#include "inc/mywidget.h"
 #include <QDebug>
 
 FileParser::FileParser(QObject *parent)
@@ -155,7 +155,7 @@ void FileParser::parseFrame(const QByteArray &frame, int numbFrame)
     }
 }
 
-void FileParser::parseService(FileParser::Pkt_Hdr *PktData)
+void FileParser::parseService(Pkt_Hdr *PktData)
 {
     Pkt_type_Hdr* type_Hdr;
     uint16_t LenToNext_field{0};
@@ -188,7 +188,7 @@ void FileParser::parseService(FileParser::Pkt_Hdr *PktData)
     }
 }
 
-void FileParser::parseBeacon(FileParser::Pkt_Hdr *PktData, int numbFrame)
+void FileParser::parseBeacon(Pkt_Hdr *PktData, int numbFrame)
 {
     if(PktData->DestAddr == SOFT_ADDR_BRDCST)
     {
@@ -245,7 +245,7 @@ bool FileParser::CompNum8(uint8_t Num1, uint8_t Num2)
         return false;
 }
 
-FileParser::VSV_t FileParser::get_VSV(uint8_t *p_vsv, uint8_t index)
+VSV_t FileParser::get_VSV(uint8_t *p_vsv, uint8_t index)
 {
     VSV_t vsv_type;
 
