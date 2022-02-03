@@ -142,7 +142,7 @@ void FileParser::parseFrame(const QByteArray &frame, int numbFrame)
             // Исключаем пакет синхронизации
             if (frame.size() != lengthSynhr)
             {
-                const char* pFrame;
+                const char *pFrame;
                 Pkt_Hdr *PktData;
 
                 pFrame = frame.data();
@@ -180,7 +180,7 @@ void FileParser::parseService(FileParser::Pkt_Hdr *PktData)
 
                 Pkt_Service *Service = (Pkt_Service *)(type_Hdr);
 
-                setCounter(PktData->SrcAddr, Service->pktNumber);
+                setCounter(PktData->SrcAddr, Service->pkt_number);
             }
             type_Hdr = (Pkt_type_Hdr*) ( ((uint8_t*)(&(type_Hdr->LenToNext))) + sizeof(PKT_LENTONEXT_TYPE) + LenToNext_field );
         }
@@ -206,13 +206,13 @@ void FileParser::parseBeacon(FileParser::Pkt_Hdr *PktData, int numbFrame)
                     if(PktData->SrcAddr != counter->addr)
                     {
                         // Проверяем вид связи на абонента
-                        if (    (GET_VSV(Beacon->VSV, var) == VSV_RSV)
-                                || (GET_VSV(Beacon->VSV, var) == VSV_RPSV)
+                        if (    (get_VSV(Beacon->VSV, var) == VSV_RSV)
+                                || (get_VSV(Beacon->VSV, var) == VSV_RPSV)
                             )
                         {
-                            if (Beacon->lastHeardPktNumber[var] != counter->CurrentPktNumber)
+                            if (Beacon->last_heard_pkt_number[var] != counter->CurrentPktNumber)
                             {
-                                setMissedPkt(PktData->SrcAddr,counter->addr,Beacon->lastHeardPktNumber[var]+1, numbFrame);
+                                setMissedPkt(PktData->SrcAddr, counter->addr, Beacon->last_heard_pkt_number[var]+1, numbFrame);
                             }
                         }
                     }
@@ -243,4 +243,22 @@ bool FileParser::CompNum8(uint8_t Num1, uint8_t Num2)
         return true;
     else
         return false;
+}
+
+FileParser::VSV_t FileParser::get_VSV(uint8_t *p_vsv, uint8_t index)
+{
+    VSV_t vsv_type;
+
+    p_vsv = p_vsv + (index >> 1); // смещение по полю VSV, в байт помещается два поля VSV
+
+    if ( (index & 0x1) == 0) // чет - берем младшую тетраду
+    {
+        vsv_type = (VSV_t)((*p_vsv) & VSV_MSK);
+    }
+    else // нечет - берем старшую тетраду
+    {
+        vsv_type = (VSV_t)(((*p_vsv) & (VSV_MSK << VSV_BITS)) >> VSV_BITS);
+    }
+
+    return vsv_type;
 }

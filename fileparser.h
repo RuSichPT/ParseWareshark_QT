@@ -9,7 +9,7 @@
 
 #define VSV_BITS                    4
 #define VSV_MSK                     ((1 << VSV_BITS) - 1)
-#define GET_VSV(vsv, index)         ((VSV_t) (((vsv) >> ((index) * VSV_BITS)) & VSV_MSK) )
+#define PKT_TYPE_TYPE               PktType
 
 class FileParser : public QObject
 {
@@ -66,48 +66,70 @@ public:
 
     enum PktType :uint8_t
     {
-        PKT_TYPE_BEACON 			= 1,	// Brdcst
+        PKT_TYPE_BEACON				= 1,	// Brdcst
         PKT_TYPE_RTS				= 2,	// Uncst
         PKT_TYPE_CTS				= 3,	// Uncst/Brdcst
         PKT_TYPE_ACK				= 4,	// Brdcst
         PKT_TYPE_NACK				= 5,	// Brdcst
         PKT_TYPE_VIRT_CH_READY		= 6,	// Uncst
         PKT_TYPE_DATA				= 7,	// Uncst/Mltcst/Brdcst
-        PKT_TYPE_REQUEST			= 8,    // Uncst/Mltcst/Brdcst
-        PKT_TYPE_DATA_MAP 			= 9,	// Brdcst
-        PKT_TYPE_DATA_MAP_REQUEST	= 10,	// Brdcst
-        PKT_TYPE_CONNECT_REQUEST	= 11,	// Brdcst
-        PKT_TYPE_RREQ 				= 12,   // запрос на маршрут Brdcst
-        PKT_TYPE_RREP 				= 13,   // ответ на запрос Uncst
-        PKT_TYPE_RERR 				= 14,   // ошибка маршрута Uncst/Brdcst
-        PKT_TYPE_RREPACK 			= 15    // подтверждение  получения ответа на запрос Uncst
+        PKT_TYPE_DATA_TIMEMARKED	= 8,	// Uncst/Mltcst/Brdcst
+        PKT_TYPE_REQUEST			= 9,	// Uncst/Mltcst/Brdcst
+        PKT_TYPE_DATA_MAP			= 10,	// Brdcst
+        PKT_TYPE_DATA_MAP_REQUEST	= 11,	// Brdcst
+        PKT_TYPE_CONNECT_REQUEST	= 12,	// Brdcst
+        PKT_TYPE_TIME_CORRECTION	= 13,	// Brdcst
+        PKT_TYPE_RREQ				= 14,	// запрос на маршрут Brdcst
+        PKT_TYPE_RREP				= 15,	// ответ на запрос Uncst
+        PKT_TYPE_RERR				= 16,	// ошибка маршрута Uncst/Brdcst
+        PKT_TYPE_MAC_IP_REQ			= 17,	// запрос mac ip
+        PKT_TYPE_MAC_IP_REP			= 18,	// ответ mac ip
+        PKT_TYPE_NET_MAP			= 19,	// список сетевых адресов
     };
 
     enum VSV_t :uint8_t
     {
-        VSV_NONE = 0, //нет связи, в этом месте в таблице должен отсутствовать адрес
-        VSV_CNCT = 1, //абонент в состоянии подключения
-        VSV_RSV = 2, //есть радиосвязь
-        VSV_PSV = 3, //есть проводная связь
-        VSV_RPSV = 4, //есть и проводная и радиосвязь одновременно
-        VSV_NCNCT = 5, //нет связи, это САС для соседа, в состояниии подключения
-        VSV_NRSV = 6, //нет связи, это САС для соседа, с которой у соседа радиосвязь
-        VSV_NPSV = 7, //нет связи, это САС для соседа, с которой у соседа провод
-        VSV_NRPSV = 8, //нет связи, это САС для соседа, с которой у соседа и радио и провод
+        VSV_NONE	= 0, //нет связи, в этом месте в таблице должен отсутствовать адрес
+        VSV_CNCT	= 1, //абонент в состоянии подключения
+        VSV_RSV		= 2, //есть радиосвязь
+        VSV_PSV		= 3, //есть проводная связь
+        VSV_RPSV	= 4, //есть и проводная и радиосвязь одновременно
+        VSV_NCNCT	= 5, //нет связи, это САС для соседа, в состояниии подключения
+        VSV_NRSV	= 6, //нет связи, это САС для соседа, с которой у соседа радиосвязь
+        VSV_NPSV	= 7, //нет связи, это САС для соседа, с которой у соседа провод
+        VSV_NRPSV	= 8, //нет связи, это САС для соседа, с которой у соседа и радио и провод
     } ;
 
-    enum TraffDirectionType
+    enum TraffDirectionType :uint8_t
     {
-        DIRECTION_TYPE_RESERV  = 0x00,
-        DIRECTION_TYPE_RX      = 0x01,
-        DIRECTION_TYPE_TX      = 0x02,
-        DIRECTION_TYPE_DUPLEX  = 0x03,
+        DIRECTION_TYPE_RESERV	= 0x00,
+        DIRECTION_TYPE_RX		= 0x01,
+        DIRECTION_TYPE_TX		= 0x02,
+        DIRECTION_TYPE_DUPLEX	= 0x03,
     };
 
-    enum Reservation_type_t
+    enum Reserv_elem_type_t
     {
-        RESERV_COMMON = 0,
-        RESERV_REQUEST = 1
+        RE_CURRENT				,	// текущая ЗоР
+        RE_PLANNED 				,	// планируемая ЗоР
+        RE_CLOSING 				,	// вспомогательная ЗоР, для закрытия временного участка
+        RE_RESERVED
+    };
+
+    enum ReservingResult_t
+    {
+        RESULT_DISSENT 		= 0,	// не согласны
+        RESULT_CONSENT 		= 1,	// согласны
+        RESULT_2			= 2
+    };
+
+    enum ClosingReason_t :uint8_t
+    {
+        REASON_TRAFF_END 		= 0,
+        REASON_ERROR_RESERVING	= 1,
+        REASON_REPLACE			= 2,
+        REASON_NOT_EXISTS		= 3,
+        REASON_TRAFF_END_REP	= 4,
     };
 
     struct Pkt_Hdr
@@ -116,24 +138,25 @@ public:
         PKT_ADDR_TYPE SrcAddr;
         PKT_LEN_TYPE PktLen;
         PKT_CRC_TYPE crc;
-        PktType Data_type;
+        PKT_TYPE_TYPE Data_type;
         PKT_LENTONEXT_TYPE Data_LenToNext;
     };
 
     struct Pkt_type_Hdr
     {
-        PktType Type;
+        PKT_TYPE_TYPE Type;
         PKT_LENTONEXT_TYPE LenToNext;
         uint8_t pdata[];
     };
 
     struct Network_Par_t
     {
-      uint8_t                 curr_frame;
-      uint8_t                 curr_cycle_size;
-      uint8_t                 next_cycle_size;
-      uint8_t                 next_bcn_cycle; // неясно, так ли необходимо это поле, только если бикон должен быть послан в следующем цикле и во фрейме, значение которого превышает значение фрейма при приеме
-      uint8_t                 next_bcn_frame;
+        uint8_t					max_as;				// необязательное поле, для wireshark
+        uint8_t					curr_frame;
+        uint8_t					curr_cycle_size;
+        uint8_t					next_cycle_size;
+        uint8_t					next_bcn_cycle;		// неясно, так ли необходимо это поле, только если бикон должен быть послан в следующем цикле и во фрейме, значение которого превышает значение фрейма при приеме
+        uint8_t					next_bcn_frame;
     };
 
     struct AS_State_t
@@ -149,71 +172,56 @@ public:
 
     struct Pkt_Beacon
     {
-        PktType                 Type;
-        PKT_LENTONEXT_TYPE      LenToNext;
-        Network_Par_t           ID;
-        AS_State_t              AS[MAX_RADIO_CONNECTIONS];
+        PKT_TYPE_TYPE			Type;
+        PKT_LENTONEXT_TYPE		LenToNext;
+        Network_Par_t			NET_PAR;
+        AS_State_t				AS[MAX_RADIO_CONNECTIONS];
         AS_Speed_t				SPD[MAX_RADIO_CONNECTIONS];
-        uint32_t                VSV; // вид связи для каждого абонента, адрес которого указан в адресной таблице
-        uint8_t                 FRQ[FRQ_ARR_SZ];
-        int8_t                  SNR_AS[MAX_RADIO_CONNECTIONS];
-        uint8_t                 lastHeardPktNumber[MAX_RADIO_CONNECTIONS]; // список из последних услышанных порядковых номеров пакетов(широковещательных)
+        uint8_t					VSV[(MAX_RADIO_CONNECTIONS + 1) >> 1]; // вид связи для каждого абонента, адрес которого указан в адресной таблице
+        uint8_t					FRQ[FRQ_ARR_SZ];
+        int8_t					SNR_AS[MAX_RADIO_CONNECTIONS];
+        uint8_t					last_heard_pkt_number[MAX_RADIO_CONNECTIONS]; // список из последних услышанных порядковых номеров пакетов(широковещательных)
+        int8_t					self_clock_deviation;
     };
 
     struct Reservation_entry_t
     {
-        uint8_t 			periodicity		:4; // периодичность
-        TraffDirectionType 	direction		:2; // направление (00-Резерв, 01-Прм, 02-Прд, 03-дуплекс )
-        Reservation_type_t	type	 		:2; // тип ЗоР (0-обычная ЗоР, 1-запрос КАС на резерв-е под указанный объем данных)
+        uint8_t 				num_tr_blocks;	// кол-во транспортных блоков // если кол-во ТБ равно 0, значит ЗоР пустая
+        uint8_t 				offset;			// смещение
+
+        uint8_t 				freq_ch			:4; // частотный канал
+        TraffDirectionType		direction		:2; // направление (00-Резерв, 01-Прм, 02-Прд, 03-дуплекс )
+        Reserv_elem_type_t		type			:2;	// тип ЗоР: текущая, планируемая, вспомогательная (+) или (-)
+
+        uint8_t 				rate			:2; // скорость (0,1,2...)
+        uint8_t					reserved		:6;
+    };
+
+    struct Pkt_Service
+    {
+        PKT_TYPE_TYPE			Type;
+        PKT_LENTONEXT_TYPE		LenToNext;
+        uint16_t				dest_addr;		// адрес конечного абонента
+        uint16_t				src_addr;		// адрес инициатора обмена
+        uint8_t					virt_ch_num;	// номер виртуального канала
+        uint8_t					session_id;		// номер сессии организации или изменения участка ВК
+        uint16_t				sec_addr;		// вспогательный адрес (адрес получателя/отправителя данных в участке ВК)
+        uint8_t					pkt_number;		// порядковый номер пакета
         union
         {
             struct
             {
-                uint8_t 	num_tr_blocks;	// кол-во транспортных блоков // если кол-во ТБ равно 0, значит ЗоР пустая
-                uint8_t 	offset;			// смещение
+                uint8_t				traffic_type	:4;		// тип трафика
+                TraffDirectionType	direction		:2;		// направление (00-Резерв, 01-Прм, 02-Прд, 03-дуплекс )
+                uint8_t				priority		:2;		// приоритет
             };
-            uint16_t 		len;			// объем данных, для которых необходимо зарезервировать канал
+            ReservingResult_t		reserv_result	:4;		// результат резервирования
+            ClosingReason_t			closing_reason	:4;		// причина закрытия вирт канала
         };
-        uint8_t 			rate			:6; // скорость (0,1,2...)
-        uint8_t 			feature			:2;	// Reserv_elem_type_t // для DATA_MAP: ЗоР текущая или планируемая
-    };
-
-    struct Pkt_RTS
-    {
-      PktType                 Type;
-      PKT_LENTONEXT_TYPE      LenToNext;
-      uint16_t                dest_addr;         // адрес конечного абонента
-      uint16_t                src_addr;          // адрес инициатора обмена
-      uint8_t                 virt_ch_num;       // номер виртуального канала
-      uint16_t                sec_addr;          // вспогательный адрес (адрес получателя/отправителя данных в участке ВК)
-      uint8_t                 pktNumber;         // порядковый номер пакета
-      uint8_t                 traffic_type  : 4; // тип трафика
-      TraffDirectionType      direction     : 2; // направление (00-Резерв, 01-Прм, 02-Прд, 03-дуплекс )
-      uint8_t                 priority      : 2; // приоритет
-      Reservation_entry_t     res_entry[];       // запись о резервировании
-    };
-
-    struct Pkt_DATA_MAP_REQ
-    {
-      PktType                 Type;
-      PKT_LENTONEXT_TYPE      LenToNext;
-      uint16_t                dest_addr;         // адрес конечного абонента
-      uint16_t                src_addr;          // адрес инициатора обмена
-      uint8_t                 virt_ch_num;       // номер виртуального канала
-      uint16_t                sec_addr;          // вспогательный адрес (адрес получателя/отправителя данных в участке ВК)
-      uint8_t                 pktNumber;         // порядковый номер пакета
-      uint8_t                 traffic_type  : 4; // тип трафика
-      TraffDirectionType      direction     : 2; // направление (00-Резерв, 01-Прм, 02-Прд, 03-дуплекс )
-      uint8_t                 priority      : 2; // приоритет
+        Reservation_entry_t			res_entry[];	// запись о резервировании
     };
 
 #pragma pack(pop)
-
-    typedef Pkt_RTS Pkt_CTS;
-    typedef Pkt_RTS Pkt_ACK;
-    typedef Pkt_RTS Pkt_NACK;
-    typedef Pkt_RTS Pkt_DATA_MAP;
-    typedef Pkt_RTS Pkt_Service;
 
     struct mapAddrPkt_t
     {
@@ -264,6 +272,7 @@ private:
     void parseBeacon(Pkt_Hdr *PktData, int numbFrame);
     int bytesToInt(const QByteArray &bytes, int first, int sizeInt);
     bool CompNum8(uint8_t Num1, uint8_t Num2);
+    VSV_t get_VSV(uint8_t *p_vsv, uint8_t index);
 };
 
 #endif // FILEPARSER_H
