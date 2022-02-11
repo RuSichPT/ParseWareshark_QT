@@ -1,25 +1,25 @@
 #ifndef REQUIRED_H
 #define REQUIRED_H
 
-#endif // REQUIRED_H
-
 #include <stdint.h>
 
 #define MAX_RADIO_CONNECTIONS	7
 #define ETHARP_HWADDR_LEN       6
 
 #define SIZE_OF_ENUM_UINT8      :uint8_t
-#define PACKED                  __attribute__ ((__packed__))
+#define PACKED
 #define SIZE_OF_ENUM_UINT16 :uint16_t
 
-//#pragma pack(push, 1)
+typedef uint16_t Net_time_t;
+
+#pragma pack(push, 1)
 
 typedef struct
 {
     uint8_t addr[ETHARP_HWADDR_LEN];
 } eth_addr;
 
-//#pragma pack(pop)
+#pragma pack(pop)
 
 // Команды управления УЦОС
 typedef enum SIZE_OF_ENUM_UINT16
@@ -44,4 +44,4 @@ typedef enum SIZE_OF_ENUM_UINT16
     UCOS_CMD_UNKNOWN = (0x0071u), //(0x8071u)
 } Modem_CMD_Names;
 
-typedef uint16_t Net_time_t;
+#endif // REQUIRED_H
