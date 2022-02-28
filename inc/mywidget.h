@@ -43,5 +43,6 @@ private:
 private:
     void printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts);
     void createMenus();
+    void clearTable();
 };
 #endif // MYWIDGET_H

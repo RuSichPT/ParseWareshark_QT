@@ -31,6 +31,9 @@ MyWidget::~MyWidget()
 
 void MyWidget::openFile()
 {
+    // Очищаем таблицу
+    clearTable();
+
     // Запускаем диалоговое окно выбора файла
     QString nameFile = QFileDialog::getOpenFileName(this, "Открыть файл","", "*pcap");
 
@@ -97,10 +100,17 @@ void MyWidget::printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts)
                 ui->m_table->setItem(row, TX_COLUMN, txItem);
                 ui->m_table->setItem(row, PKT_NUMB_COLUMN, ptkNumbItem);
                 ui->m_table->setItem(row, BEAC_NUMB_COLUMN, beacNumbItem);
+
                 row++;
             }
         }
     }
+}
+
+void MyWidget::clearTable()
+{
+    ui->m_table->clearContents();
+    ui->m_table->setRowCount(0);
 }
 
 void MyWidget::createMenus()
