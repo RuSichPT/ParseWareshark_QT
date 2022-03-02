@@ -20,14 +20,8 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
-      <attribute name="horizontalHeaderVisible">
-       <bool>true</bool>
-      </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>90</number>
-      </attribute>
-      <attribute name="verticalHeaderVisible">
-       <bool>true</bool>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
        <number>23</number>

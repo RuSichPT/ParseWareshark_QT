@@ -58,9 +58,7 @@ public:
         m_table->setHorizontalHeaderItem(4, __qtablewidgetitem4);
         m_table->setObjectName(QString::fromUtf8("m_table"));
         m_table->setEnabled(true);
-        m_table->horizontalHeader()->setVisible(true);
         m_table->horizontalHeader()->setDefaultSectionSize(90);
-        m_table->verticalHeader()->setVisible(true);
         m_table->verticalHeader()->setDefaultSectionSize(23);
 
         gridLayout->addWidget(m_table, 0, 0, 1, 2);
