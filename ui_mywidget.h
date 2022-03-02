@@ -38,14 +38,14 @@ public:
     {
         if (MyWidget->objectName().isEmpty())
             MyWidget->setObjectName(QString::fromUtf8("MyWidget"));
-        MyWidget->resize(450, 300);
+        MyWidget->resize(500, 400);
         centralwidget = new QWidget(MyWidget);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayout = new QGridLayout(centralwidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         m_table = new QTableWidget(centralwidget);
-        if (m_table->columnCount() < 4)
-            m_table->setColumnCount(4);
+        if (m_table->columnCount() < 5)
+            m_table->setColumnCount(5);
         QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
         m_table->setHorizontalHeaderItem(0, __qtablewidgetitem);
         QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
@@ -54,10 +54,13 @@ public:
         m_table->setHorizontalHeaderItem(2, __qtablewidgetitem2);
         QTableWidgetItem *__qtablewidgetitem3 = new QTableWidgetItem();
         m_table->setHorizontalHeaderItem(3, __qtablewidgetitem3);
+        QTableWidgetItem *__qtablewidgetitem4 = new QTableWidgetItem();
+        m_table->setHorizontalHeaderItem(4, __qtablewidgetitem4);
         m_table->setObjectName(QString::fromUtf8("m_table"));
         m_table->setEnabled(true);
         m_table->horizontalHeader()->setVisible(true);
         m_table->horizontalHeader()->setDefaultSectionSize(90);
+        m_table->verticalHeader()->setVisible(true);
         m_table->verticalHeader()->setDefaultSectionSize(23);
 
         gridLayout->addWidget(m_table, 0, 0, 1, 2);
@@ -76,7 +79,7 @@ public:
         MyWidget->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MyWidget);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 450, 21));
+        menubar->setGeometry(QRect(0, 0, 500, 21));
         MyWidget->setMenuBar(menubar);
         statusbar = new QStatusBar(MyWidget);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -97,7 +100,9 @@ public:
         QTableWidgetItem *___qtablewidgetitem2 = m_table->horizontalHeaderItem(2);
         ___qtablewidgetitem2->setText(QCoreApplication::translate("MyWidget", "numPkt", nullptr));
         QTableWidgetItem *___qtablewidgetitem3 = m_table->horizontalHeaderItem(3);
-        ___qtablewidgetitem3->setText(QCoreApplication::translate("MyWidget", "numBeac", nullptr));
+        ___qtablewidgetitem3->setText(QCoreApplication::translate("MyWidget", "numFramePkt", nullptr));
+        QTableWidgetItem *___qtablewidgetitem4 = m_table->horizontalHeaderItem(4);
+        ___qtablewidgetitem4->setText(QCoreApplication::translate("MyWidget", "numFrameBeac", nullptr));
         m_button->setText(QCoreApplication::translate("MyWidget", "\320\236\321\202\320\272\321\200\321\213\321\202\321\214", nullptr));
     } // retranslateUi
 

@@ -32,7 +32,7 @@ FileParser::counter_t *FileParser::getCounter(uint16_t addr)
     return nullptr;
 }
 
-void FileParser::setCounter(uint16_t addr, uint8_t PktNumber)
+void FileParser::setCounter(uint16_t addr, uint8_t pktNumber, int frameNumber)
 {
     counter_t *counter = getCounter(addr);
 
@@ -40,15 +40,21 @@ void FileParser::setCounter(uint16_t addr, uint8_t PktNumber)
     {
         counter_t tmp;
         tmp.addr = addr;
-        tmp.CurrentPktNumber = PktNumber;
+        tmp.currentpktNumber = pktNumber;
         m_counters.append(tmp);
     }
     else
     {
-        if(CompNum8(PktNumber, counter->CurrentPktNumber))
+        if(CompNum8(pktNumber, counter->currentpktNumber))
         {
-            counter->CurrentPktNumber = PktNumber;
+            counter->currentpktNumber = pktNumber;
         }
+    }
+
+    counter = getCounter(addr);
+    if (pktNumber < sizeMatch)
+    {
+        counter->matchPktToFrame[pktNumber] = frameNumber;
     }
 }
 
@@ -68,7 +74,7 @@ FileParser::missedPkt_t *FileParser::getMissedPkt(uint16_t addr)
     return nullptr;
 }
 
-void FileParser::setMissedPkt(uint16_t addr, uint16_t addrFrom, uint8_t PktNumber, int numbFrameBeac)
+void FileParser::setMissedPkt(uint16_t addr, uint16_t addrFrom, uint8_t pktNumber, int beacFrameNum, int pktFrameNum)
 {
     missedPkt_t *missedPkt = getMissedPkt(addr);
 
@@ -78,18 +84,20 @@ void FileParser::setMissedPkt(uint16_t addr, uint16_t addrFrom, uint8_t PktNumbe
         mapAddrPkt_t tmpMap;
         tmp.addr = addr;
         tmpMap.addrFrom = addrFrom;
-        tmpMap.PktNumber = PktNumber;
-        tmpMap.numbFrameBeac = numbFrameBeac;
-        tmp.PktNumbers.append(tmpMap);
+        tmpMap.pktNumber = pktNumber;
+        tmpMap.pktFrameNumber = pktFrameNum;
+        tmpMap.beacFrameNumber = beacFrameNum;
+        tmp.pktNumbers.append(tmpMap);
         m_missedPkts.append(tmp);
     }
     else
     {
         mapAddrPkt_t tmpMap;
         tmpMap.addrFrom = addrFrom;
-        tmpMap.PktNumber = PktNumber;
-        tmpMap.numbFrameBeac = numbFrameBeac;
-        missedPkt->PktNumbers.append(tmpMap);
+        tmpMap.pktNumber = pktNumber;
+        tmpMap.pktFrameNumber = pktFrameNum;
+        tmpMap.beacFrameNumber = beacFrameNum;
+        missedPkt->pktNumbers.append(tmpMap);
     }
 }
 
@@ -99,7 +107,7 @@ void FileParser::readFile(QFile &file)
     {
         QByteArray frameOf, frame;
         int lengthFrame;
-        int n_pkt {1};
+        int numFrame {1};
 
         // Запускаем таймер
         m_timer->start(updatePBarMsec);
@@ -113,8 +121,8 @@ void FileParser::readFile(QFile &file)
                 // Узнаем длину фрейма
                 lengthFrame = bytesToInt(frameOf, lengthFramOffs, sizeIntBytes);
                 frame = file.read(lengthFrame);
-                parseFrame(frame, n_pkt);
-                n_pkt++;
+                parseFrame(frame, numFrame);
+                numFrame++;
                 m_readBytes += framesOffset + lengthFrame;
             }
             else
@@ -129,7 +137,7 @@ void FileParser::readFile(QFile &file)
     }
 }
 
-void FileParser::parseFrame(const QByteArray &frame, int numbFrame)
+void FileParser::parseFrame(const QByteArray &frame, int numFrame)
 {
     // Узнаем тип
     int typeFrame = bytesToInt(frame, typeFrameOffs, sizeShortBytes);
@@ -148,14 +156,14 @@ void FileParser::parseFrame(const QByteArray &frame, int numbFrame)
                 pFrame = frame.data();
                 pFrame += PSPDOffset;
                 PktData = (Pkt_Hdr *)pFrame;
-                parseService(PktData);
-                parseBeacon(PktData, numbFrame);
+                parseService(PktData, numFrame);
+                parseBeacon(PktData, numFrame);
             }
         }
     }
 }
 
-void FileParser::parseService(Pkt_Hdr *PktData)
+void FileParser::parseService(Pkt_Hdr *PktData, int numFrame)
 {
     Pkt_type_Hdr* type_Hdr;
     uint16_t LenToNext_field{0};
@@ -180,7 +188,7 @@ void FileParser::parseService(Pkt_Hdr *PktData)
 
                 Pkt_Service *Service = (Pkt_Service *)(type_Hdr);
 
-                setCounter(PktData->SrcAddr, Service->pkt_number);
+                setCounter(PktData->SrcAddr, Service->pkt_number, numFrame);
             }
             type_Hdr = (Pkt_type_Hdr*) ( ((uint8_t*)(&(type_Hdr->LenToNext))) + sizeof(PKT_LENTONEXT_TYPE) + LenToNext_field );
         }
@@ -188,7 +196,7 @@ void FileParser::parseService(Pkt_Hdr *PktData)
     }
 }
 
-void FileParser::parseBeacon(Pkt_Hdr *PktData, int numbFrame)
+void FileParser::parseBeacon(Pkt_Hdr *PktData, int beacFrameNum)
 {
     if(PktData->DestAddr == SOFT_ADDR_BRDCST)
     {
@@ -210,9 +218,11 @@ void FileParser::parseBeacon(Pkt_Hdr *PktData, int numbFrame)
                                 || (get_VSV(Beacon->VSV, var) == VSV_RPSV)
                             )
                         {
-                            if (Beacon->last_heard_pkt_number[var] != counter->CurrentPktNumber)
+                            if (Beacon->last_heard_pkt_number[var] != counter->currentpktNumber)
                             {
-                                setMissedPkt(PktData->SrcAddr, counter->addr, Beacon->last_heard_pkt_number[var]+1, numbFrame);
+                                int pktNumber = Beacon->last_heard_pkt_number[var] + 1;
+                                int pktFrameNum = counter->matchPktToFrame[pktNumber];
+                                setMissedPkt(PktData->SrcAddr, counter->addr, pktNumber, beacFrameNum, pktFrameNum);
                             }
                         }
                     }

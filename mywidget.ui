@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>300</height>
+    <width>500</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,9 @@
       </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>90</number>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>true</bool>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
        <number>23</number>
@@ -46,7 +49,12 @@
       </column>
       <column>
        <property name="text">
-        <string>numBeac</string>
+        <string>numFramePkt</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>numFrameBeac</string>
        </property>
       </column>
      </widget>
@@ -72,7 +80,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>450</width>
+     <width>500</width>
      <height>21</height>
     </rect>
    </property>

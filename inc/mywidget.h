@@ -23,8 +23,9 @@ private:
     {
         RX_COLUMN,
         TX_COLUMN,
-        PKT_NUMB_COLUMN,
-        BEAC_NUMB_COLUMN,
+        NUM_PKT_COLUMN,
+        NUM_FRAME_PKT_COLUMN,
+        NUM_FRAME_BEAC_COLUMN,
         COUNT_COLUMNS
     };
 

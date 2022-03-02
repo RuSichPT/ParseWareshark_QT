@@ -78,28 +78,32 @@ void MyWidget::printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts)
             QTableWidgetItem *rxItem = new QTableWidgetItem(QString::number(missedPkt.addr));
             rxItem->setTextAlignment(Qt::AlignCenter);
             // Кол-во строк
-            ui->m_table->setRowCount(missedPkt.PktNumbers.size()+ui->m_table->rowCount());
-            ui->m_table->setItem(row,RX_COLUMN,rxItem);
+            ui->m_table->setRowCount(missedPkt.pktNumbers.size()+ui->m_table->rowCount());
+            ui->m_table->setItem(row, RX_COLUMN, rxItem);
 
-            foreach (const auto &PktNumbers, missedPkt.PktNumbers)
+            foreach (const auto &pktNumbers, missedPkt.pktNumbers)
             {
-                uint16_t addrfrom = PktNumbers.addrFrom;
-                uint8_t PktNumber = PktNumbers.PktNumber;
-                int numbFrameBeac = PktNumbers.numbFrameBeac;
+                uint16_t addrfrom = pktNumbers.addrFrom;
+                uint8_t pktNumber = pktNumbers.pktNumber;
+                int pktFrameNumber = pktNumbers.pktFrameNumber;
+                int beacFrameNumber = pktNumbers.beacFrameNumber;
 
                 // Создаем ячейки для таблицы
                 QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(addrfrom));
-                QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(PktNumber));
-                QTableWidgetItem *beacNumbItem = new QTableWidgetItem(QString::number(numbFrameBeac));
+                QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(pktNumber));
+                QTableWidgetItem *pktFrameItem = new QTableWidgetItem(QString::number(pktFrameNumber));
+                QTableWidgetItem *beacNumbItem = new QTableWidgetItem(QString::number(beacFrameNumber));
 
                 ptkNumbItem->setTextAlignment(Qt::AlignCenter);
                 txItem->setTextAlignment(Qt::AlignCenter);
+                pktFrameItem->setTextAlignment(Qt::AlignCenter);
                 beacNumbItem->setTextAlignment(Qt::AlignCenter);
 
                 // Вставляем ячейки в таблицу
                 ui->m_table->setItem(row, TX_COLUMN, txItem);
-                ui->m_table->setItem(row, PKT_NUMB_COLUMN, ptkNumbItem);
-                ui->m_table->setItem(row, BEAC_NUMB_COLUMN, beacNumbItem);
+                ui->m_table->setItem(row, NUM_PKT_COLUMN, ptkNumbItem);
+                ui->m_table->setItem(row, NUM_FRAME_PKT_COLUMN, pktFrameItem);
+                ui->m_table->setItem(row, NUM_FRAME_BEAC_COLUMN, beacNumbItem);
 
                 row++;
             }
