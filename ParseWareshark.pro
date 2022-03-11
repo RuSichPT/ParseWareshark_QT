@@ -15,13 +15,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# DEFINES += __OMNET__=1
+
 SOURCES += \
     src/fileparser.cpp \
     src/main.cpp \
     src/mywidget.cpp
 
 HEADERS += \
-    inc/MAC_pkts_format.h \
+    external_files/MAC/Inc/MAC_Max_STA_Num.h \
+    external_files/MAC/Inc/MAC_Timeline.h \
+    external_files/MAC/Inc/MAC_Timers.h \
+    external_files/MAC/Inc/MAC_debug.h \
+    external_files/MAC/Inc/MAC_pkts_format.h \
+    external_files/Routing/Rout_control_pkt.h \
+    external_files/debug.h \
+    external_files/eth.h \
+    external_files/pbuffs.h \
+    external_files/types.h \
     inc/fileparser.h \
     inc/mywidget.h \
     inc/required.h \

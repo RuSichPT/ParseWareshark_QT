@@ -5,7 +5,10 @@
 #ifndef __MAC_PKTS_FORMAT_H
 #define __MAC_PKTS_FORMAT_H
 
-#include "inc/required.h"
+#include "external_files/MAC/Inc/MAC_debug.h"
+#include "external_files/MAC/Inc/MAC_Max_STA_Num.h"     // MAX_RADIO_CONNECTIONS
+#include "external_files/MAC/Inc/MAC_Timers.h"			// Net_time_t
+#include "external_files/eth.h"                         // eth_addr
 
 
 #define SOFT_ADDR_BRDCST        (0xFFFFu)

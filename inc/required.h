@@ -1,25 +1,7 @@
 #ifndef REQUIRED_H
 #define REQUIRED_H
 
-#include <stdint.h>
-
-#define MAX_RADIO_CONNECTIONS	7
-#define ETHARP_HWADDR_LEN       6
-
-#define SIZE_OF_ENUM_UINT8      :uint8_t
 #define PACKED
-#define SIZE_OF_ENUM_UINT16 :uint16_t
-
-typedef uint16_t Net_time_t;
-
-#pragma pack(push, 1)
-
-typedef struct
-{
-    uint8_t addr[ETHARP_HWADDR_LEN];
-} eth_addr;
-
-#pragma pack(pop)
 
 // Команды управления УЦОС
 typedef enum SIZE_OF_ENUM_UINT16

@@ -2,11 +2,11 @@
 #define FILEPARSER_H
 
 #include <QObject>
-#include <stdint.h>                 // uint16_t, uint8_t
-#include "inc/MAC_pkts_format.h"    // all
 #include <QVector>
 #include <QFile>
 #include <QTimer>
+#include "required.h" //UCOS_CMD_TXDATA
+#include "external_files/MAC/Inc/MAC_pkts_format.h"  //Pkt_Hdr, VSV_t ,Pkt_type_Hdr и тд
 
 #define VSV_BITS                    4
 #define VSV_MSK                     ((1 << VSV_BITS) - 1)
