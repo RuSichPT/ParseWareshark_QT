@@ -6,15 +6,15 @@
 #define __MAC_PKTS_FORMAT_H
 
 #include "external_files/MAC/Inc/MAC_debug.h"
-#include "external_files/MAC/Inc/MAC_Max_STA_Num.h"     // MAX_RADIO_CONNECTIONS
+#include "external_files/MAC/Inc/MAC_Max_STA_Num.h"	// MAX_RADIO_CONNECTIONS
 #include "external_files/MAC/Inc/MAC_Timers.h"			// Net_time_t
-#include "external_files/eth.h"                         // eth_addr
+#include "external_files/eth.h"						// eth_addr
 
 
 #define SOFT_ADDR_BRDCST        (0xFFFFu)
 #define SOFT_ADDR_EMPTY         0
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	PKT_TYPE_BEACON				= 1,	// Brdcst
 	PKT_TYPE_RTS				= 2,	// Uncst
@@ -43,18 +43,18 @@ typedef enum SIZE_OF_ENUM_UINT8
 //	PKT_TYPE_REBUILD_REQ_RETRANSMISSION = 14,	//Brdcst
 //	PKT_TYPE_TEST						= 15,	//Brdcst
 	PKT_TYPE_MAX_VALUE
-} PktType;
+} PACKED PktType;
 
-typedef enum SIZE_OF_ENUM_UINT16
+typedef enum
 {
 	REQ_TYPE_NEED_DATA_MAP	= 0,
 	REQ_TYPE_DATA_MAP_END	= 1,
 	REQ_TYPE_NEED_NET_MAP	= 2,
 	REQ_TYPE_FFFF			= 0xFFFFu,
-} RequestType;
+} PACKED RequestType;
 
 /////////////BUSY TIME TABLE
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	TYPE_REALTIME = 0,
 	TYPE_1 = 1,
@@ -62,7 +62,7 @@ typedef enum SIZE_OF_ENUM_UINT8
 	TYPE_3 = 3
 } PACKED TraffType;
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	PRIORITY_0 = 0,
 	PRIORITY_1 = 1,
@@ -70,7 +70,7 @@ typedef enum SIZE_OF_ENUM_UINT8
 	PRIORITY_3 = 3
 } PACKED TraffPriority;
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	REASON_TRAFF_END 		= 0,
 	REASON_ERROR_RESERVING	= 1,
@@ -79,14 +79,14 @@ typedef enum SIZE_OF_ENUM_UINT8
 	REASON_TRAFF_END_REP	= 4,
 } PACKED ClosingReason_t;
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	RESULT_DISSENT 		= 0,	// не согласны
 	RESULT_CONSENT 		= 1,	// согласны
 	RESULT_2			= 2
 } PACKED ReservingResult_t;
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	TYPE_SERVICE = 0, //Служебные данные, BEACON, RTS, CTS, ACK, NACK
 	TYPE_DATA = 1
@@ -163,7 +163,7 @@ typedef struct
 	uint8_t next_cycle_tx_rate :3;
 } AS_Speed_t;
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	VSV_NONE	= 0, //нет связи, в этом месте в таблице должен отсутствовать адрес
 	VSV_CNCT	= 1, //абонент в состоянии подключения
@@ -288,27 +288,27 @@ typedef struct
 
 // *** RTS/CTS/ACK/NACK ***
 #pragma pack(push, 1)
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	DIRECTION_TYPE_RESERV	= 0x00,
 	DIRECTION_TYPE_RX		= 0x01,
 	DIRECTION_TYPE_TX		= 0x02,
 	DIRECTION_TYPE_DUPLEX	= 0x03,
-} TraffDirectionType;
+} PACKED TraffDirectionType;
 
-//typedef enum SIZE_OF_ENUM_UINT8
+//typedef enum
 //{
 //	RESERV_COMMON = 0,
 //	RESERV_REQUEST = 1
-//} Reservation_type_t;
+//} PACKED Reservation_type_t;
 
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	RE_CURRENT				,	// текущая ЗоР
 	RE_PLANNED 				,	// планируемая ЗоР
 	RE_CLOSING 				,	// вспомогательная ЗоР, для закрытия временного участка
 	RE_RESERVED
-} Reserv_elem_type_t;
+} PACKED Reserv_elem_type_t;
 
 typedef struct
 {
@@ -455,17 +455,18 @@ typedef struct
 #define PKT_DATA_LENTONEXT_TYPE      uint16_t
 
 #pragma pack(push, 1)
-typedef enum SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	FRAGMENT_NOT_LAST		= 0,
 	FRAGMENT_LAST			= 1
-} FragmentEnd;
+} PACKED FragmentEnd;
 
 typedef struct
 {
-	uint8_t					Num	:7;
-	FragmentEnd				End	:1;
-}FragmentType;
+	uint8_t					Num	:6; //номер фрагмента внутри пакета
+	uint8_t					Pkt	:1; //номер текущего пакета, меняется только при фрагментировании, используется для идентификации того, что текущий принятый фрагмент это продолжение предыдущего пакета, а не какойто фрагмент уже нового пакета
+	FragmentEnd				End	:1; //признак того, что фрагмент последний
+} FragmentType;
 
 typedef struct
 {

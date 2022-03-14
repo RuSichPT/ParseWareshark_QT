@@ -5,7 +5,10 @@
 #ifndef __MAC_TIMELINE_H
 #define __MAC_TIMELINE_H
 
-#include "inc/required.h"
+#include "MAC/Inc/MAC_debug.h"
+#include "MAC/Inc/MAC_Max_STA_Num.h"	//MAX_RADIO_CONNECTIONS
+#include "MAC/Inc/ModemProtocol.h"		//PP_FRQ_PER_SLOT, GetSlot_PRD1(), ..
+#include "MAC/Inc/MAC_pkts_format.h"	//PKT_BEACON_LEN
 
 
 // для FSET команд

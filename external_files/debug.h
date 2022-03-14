@@ -77,8 +77,10 @@ typedef union
 #endif
 
 #define ASM_NOP               asm("nop")
-#if defined (__GNUC__)
+#if defined (__GNUC__) && !defined (__OMNET__)
 #define ERROR_DEBUG_BKPT      asm("bkpt")
+#elif defined (__OMNET__)
+
 #else
 #define ERROR_DEBUG_BKPT      asm("bkpt#0")
 #endif

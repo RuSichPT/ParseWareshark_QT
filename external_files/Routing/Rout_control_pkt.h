@@ -8,10 +8,10 @@
 #ifndef ROUT_CONTROL_PKT_H_
 #define ROUT_CONTROL_PKT_H_
 
-#include "external_files/MAC/Inc/MAC_pkts_format.h"// Pkt_Hdr, Pkt_type_Hdr, Unreachable_node_t,Valid_flag_t
-#include "external_files/MAC/Inc/MAC_Timeline.h" // MAX_RADIO_CONNECTIONS, TIME_WORK_PERIOD
-#include "external_files/pbuffs.h" //QUEUE_TRUE_SZ
-#include "external_files/eth.h"
+#include "MAC/Inc/MAC_pkts_format.h"// Pkt_Hdr, Pkt_type_Hdr, Unreachable_node_t,Valid_flag_t
+#include "MAC/Inc/MAC_Timeline.h" // MAX_RADIO_CONNECTIONS, TIME_WORK_PERIOD
+#include "pbuffs.h" //QUEUE_TRUE_SZ
+#include "eth.h"
 
 #define START_STA_ADDR						(100)
 #define MAX_SIZE_TABLE_ROUTE				(MAX_RADIO_CONNECTIONS)//максимальный размер таблицы маршрузиции

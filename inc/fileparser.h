@@ -5,8 +5,8 @@
 #include <QVector>
 #include <QFile>
 #include <QTimer>
-#include "required.h" //UCOS_CMD_TXDATA
 #include "external_files/MAC/Inc/MAC_pkts_format.h"  //Pkt_Hdr, VSV_t ,Pkt_type_Hdr и тд
+#include "required.h" //UCOS_CMD_TXDATA
 
 #define VSV_BITS                    4
 #define VSV_MSK                     ((1 << VSV_BITS) - 1)
@@ -18,7 +18,6 @@ class FileParser : public QObject
 
 private:
     static const int lengthSynhr            {68};
-    static const int IPv4                   {0x0008};
 
     static const int updatePBarMsec         {500};
 

@@ -141,7 +141,7 @@ void FileParser::parseFrame(const QByteArray &frame, int numFrame)
 {
     // Узнаем тип
     int typeFrame = bytesToInt(frame, typeFrameOffs, sizeShortBytes);
-    if (typeFrame == IPv4)
+    if (typeFrame == PP_HTONS(ETHTYPE_IP))
     {
         // Узнаем Modem_CMD_Name
         int modemCMDName = bytesToInt(frame, UCOSOffset, sizeShortBytes);

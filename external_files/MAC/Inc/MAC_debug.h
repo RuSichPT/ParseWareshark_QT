@@ -27,16 +27,6 @@
 #define PACKED          __attribute__ ((__packed__))
 #endif//#if defined (__ICCARM__)
 
-#if defined (__OMNET__)        // OMNET Compiler
-  #define SIZE_OF_ENUM_UINT8  :uint8_t
-  #define SIZE_OF_ENUM_UINT16 :uint16_t
-  #define SIZE_OF_ENUM_UINT32 :uint32_t
-#else
-  #define SIZE_OF_ENUM_UINT8
-  #define SIZE_OF_ENUM_UINT16
-  #define SIZE_OF_ENUM_UINT32
-#endif
-
 #if defined (_MSC_VER)          // MSVC++
 
 #define ERROR_DEBUG_BKPT      _asm int 3  //#include <windows.h> DebugBreak()
@@ -99,8 +89,10 @@ typedef struct
 
 #define DEBUG_TASK_MNGR                 1
 
+#elif defined (__MINGW32__) || defined (__MINGW64__)
+
 #else //defined (__ICCARM__) || defined (__ATOLLIC__)
-//#error
+#error
 #endif
 
 #define OMNET_SNR_DB_OFFSET             0 // сколько дБ прибавлять к уровню сигнала в симуляторе при передаче значения в SLEVEL

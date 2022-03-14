@@ -1,8 +1,6 @@
 #ifndef REQUIRED_H
 #define REQUIRED_H
 
-#define PACKED
-
 // Команды управления УЦОС
 typedef enum SIZE_OF_ENUM_UINT16
 {

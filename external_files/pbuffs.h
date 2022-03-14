@@ -48,7 +48,7 @@ typedef enum
 	TO_LOG,
 } BuffOwner_typedef;
 
-typedef enum //SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	P_PRIORITY_0 = 0,
 	P_PRIORITY_1 = 1,
@@ -60,7 +60,7 @@ typedef enum //SIZE_OF_ENUM_UINT8
 #define MIN_TRAFF_PRIORITY		P_PRIORITY_3
 #define NUM_TRAFF_PRIORITY		(MIN_TRAFF_PRIORITY + 1) // число элементов в enum!
 
-typedef enum //SIZE_OF_ENUM_UINT8
+typedef enum
 {
 	P_TYPE_REALTIME 	= 0,
 	P_TYPE_TIMEMARKED	= 1,
