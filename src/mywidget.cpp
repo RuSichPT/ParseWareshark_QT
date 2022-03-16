@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QMenuBar>
 #include <QDebug>
+#include <QSettings>
 
 MyWidget::MyWidget(QWidget *parent)
     : QMainWindow(parent)
@@ -34,11 +35,18 @@ void MyWidget::openFile()
     // Очищаем таблицу
     clearTable();
 
+    // Создаем запись в реестре для сохранения пути
+    QSettings settings("ParseWireshark","path");
+    QString dir = settings.value("path").toString();
+
     // Запускаем диалоговое окно выбора файла
-    QString nameFile = QFileDialog::getOpenFileName(this, "Открыть файл","", "*pcap");
+    QString nameFile = QFileDialog::getOpenFileName(this, "Открыть файл", dir, "*pcap");
 
     // Устанавиливаем выбранный файл
     m_file->setFileName(nameFile);
+
+    // Устанавливаем значение в реестре
+    settings.setValue("path", nameFile);
 
     // Открываем файл
     if (!m_file->open(QIODevice::ReadOnly))
