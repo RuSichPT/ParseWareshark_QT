@@ -14,7 +14,7 @@
 #define SOFT_ADDR_BRDCST        (0xFFFFu)
 #define SOFT_ADDR_EMPTY         0
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	PKT_TYPE_BEACON				= 1,	// Brdcst
 	PKT_TYPE_RTS				= 2,	// Uncst
@@ -45,7 +45,7 @@ typedef enum
 	PKT_TYPE_MAX_VALUE
 } PACKED PktType;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT16
 {
 	REQ_TYPE_NEED_DATA_MAP	= 0,
 	REQ_TYPE_DATA_MAP_END	= 1,
@@ -54,7 +54,7 @@ typedef enum
 } PACKED RequestType;
 
 /////////////BUSY TIME TABLE
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	TYPE_REALTIME = 0,
 	TYPE_1 = 1,
@@ -62,7 +62,7 @@ typedef enum
 	TYPE_3 = 3
 } PACKED TraffType;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	PRIORITY_0 = 0,
 	PRIORITY_1 = 1,
@@ -70,7 +70,7 @@ typedef enum
 	PRIORITY_3 = 3
 } PACKED TraffPriority;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	REASON_TRAFF_END 		= 0,
 	REASON_ERROR_RESERVING	= 1,
@@ -79,14 +79,14 @@ typedef enum
 	REASON_TRAFF_END_REP	= 4,
 } PACKED ClosingReason_t;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	RESULT_DISSENT 		= 0,	// не согласны
 	RESULT_CONSENT 		= 1,	// согласны
 	RESULT_2			= 2
 } PACKED ReservingResult_t;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	TYPE_SERVICE = 0, //Служебные данные, BEACON, RTS, CTS, ACK, NACK
 	TYPE_DATA = 1
@@ -163,7 +163,7 @@ typedef struct
 	uint8_t next_cycle_tx_rate :3;
 } AS_Speed_t;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	VSV_NONE	= 0, //нет связи, в этом месте в таблице должен отсутствовать адрес
 	VSV_CNCT	= 1, //абонент в состоянии подключения
@@ -288,7 +288,7 @@ typedef struct
 
 // *** RTS/CTS/ACK/NACK ***
 #pragma pack(push, 1)
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	DIRECTION_TYPE_RESERV	= 0x00,
 	DIRECTION_TYPE_RX		= 0x01,
@@ -296,13 +296,13 @@ typedef enum
 	DIRECTION_TYPE_DUPLEX	= 0x03,
 } PACKED TraffDirectionType;
 
-//typedef enum
+//typedef enum SIZE_OF_ENUM_UINT8
 //{
 //	RESERV_COMMON = 0,
 //	RESERV_REQUEST = 1
 //} PACKED Reservation_type_t;
 
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	RE_CURRENT				,	// текущая ЗоР
 	RE_PLANNED 				,	// планируемая ЗоР
@@ -455,7 +455,7 @@ typedef struct
 #define PKT_DATA_LENTONEXT_TYPE      uint16_t
 
 #pragma pack(push, 1)
-typedef enum
+typedef enum SIZE_OF_ENUM_UINT8
 {
 	FRAGMENT_NOT_LAST		= 0,
 	FRAGMENT_LAST			= 1

@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QTimer>
 #include "external_files/MAC/Inc/MAC_pkts_format.h"  //Pkt_Hdr, VSV_t ,Pkt_type_Hdr и тд
+#include "external_files/Routing/Rout_control_pkt.h"
 #include "required.h" //UCOS_CMD_TXDATA
 
 #define VSV_BITS                    4

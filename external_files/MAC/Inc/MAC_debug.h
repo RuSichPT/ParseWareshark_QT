@@ -27,6 +27,14 @@
 #define PACKED          __attribute__ ((__packed__))
 #endif//#if defined (__ICCARM__)
 
+#define SIZE_OF_ENUM_UINT8
+#define SIZE_OF_ENUM_UINT16
+#if defined (__OMNET__)        // OMNET Compiler
+  #define SIZE_OF_ENUM_UINT32 :uint32_t
+#else
+  #define SIZE_OF_ENUM_UINT32
+#endif
+
 #if defined (_MSC_VER)          // MSVC++
 
 #define ERROR_DEBUG_BKPT      _asm int 3  //#include <windows.h> DebugBreak()

@@ -18,14 +18,14 @@ namespace inet
 #include "MAC/Inc/ModemProtocol.h"
 #include "MAC/Inc/TaskManager.h"
 #include "MAC/Inc/MAC_RXTX_TasksProc.h"
-#include "MAC/Inc/MAC_Timeline.h"
-#include "MAC/Inc/MAC_pkts_format.h"
+#include "external_files/MAC/Inc/MAC_Timeline.h"
+#include "external_files/MAC/Inc/MAC_pkts_format.h"
 #include "MAC/Inc/MAC_TX_BuildPkts.h"
-#include "Routing/Rout_control_pkt.h"
+#include "external_files/Routing/Rout_control_pkt.h"
 #include "MAC/Inc/MAC_TasksGen.h"//для TASK_DIR_RX TASK_DIR_TX
 #include "MAC/Inc/MAC_Connect_to_Net.h"
 #include "MAC/Inc/ModemFHSS.h"//Calc_FRQ_forModemCommandWord_NORM
-#include "MAC/Inc/MAC_Timers.h"//GetINR()
+#include "external_files/MAC/Inc/MAC_Timers.h"//GetINR()
 #include "MAC/Inc/MAC_Status_Info_Gen.h"//INFO_TRAFF_TX
 #include "MAC/Inc/MAC_Data_Queues.h"
 #include "tools.h"//Wiki_Crc16
