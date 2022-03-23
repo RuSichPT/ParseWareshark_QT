@@ -38,6 +38,8 @@ HEADERS += \
 FORMS += \
     mywidget.ui
 
+win32: RC_FILE = res.rc
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

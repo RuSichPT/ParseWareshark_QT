@@ -18,7 +18,7 @@ MyWidget::MyWidget(QWidget *parent)
     connect(ui->m_button, &QPushButton::clicked, this, &MyWidget::openFile);
 
     // Иконка
-    QIcon icon = QIcon(":/images/icon.jpg");
+    QIcon icon = QIcon(":/res/images/icon.ico");
     setWindowIcon(icon);
 
     // Создаем меню

@@ -41,6 +41,12 @@ void FileParser::setCounter(uint16_t addr, uint8_t pktNumber, int frameNumber)
         counter_t tmp;
         tmp.addr = addr;
         tmp.currentpktNumber = pktNumber;
+
+        for(int i = 0; i < sizeMatch; i++)
+        {
+            tmp.matchPktToFrame[i] = 0;
+        }
+
         m_counters.append(tmp);
     }
     else
@@ -52,10 +58,7 @@ void FileParser::setCounter(uint16_t addr, uint8_t pktNumber, int frameNumber)
     }
 
     counter = getCounter(addr);
-    if (pktNumber < sizeMatch)
-    {
-        counter->matchPktToFrame[pktNumber] = frameNumber;
-    }
+    counter->matchPktToFrame[pktNumber] = frameNumber;
 }
 
 FileParser::missedPkt_t *FileParser::getMissedPkt(uint16_t addr)

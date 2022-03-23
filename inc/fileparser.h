@@ -31,7 +31,7 @@ private:
     static const int sizeByteBits           {8};
     static const int sizeIntBytes           {4};
     static const int sizeShortBytes         {2};
-    static const int sizeMatch              {255};
+    static const int sizeMatch              {256};
 
 public:
 
