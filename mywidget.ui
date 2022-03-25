@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>570</width>
     <height>400</height>
    </rect>
   </property>
@@ -21,34 +21,39 @@
        <bool>true</bool>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>90</number>
+       <number>100</number>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
        <number>23</number>
       </attribute>
       <column>
        <property name="text">
-        <string>Rx</string>
+        <string>Приемник</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Tx</string>
+        <string>Передатчик</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>numPkt</string>
+        <string>Номер
+пропущенного
+пакета</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>numFramePkt</string>
+        <string>Номер фрейма
+пропущенного
+пакета</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>numFrameBeac</string>
+        <string>Номер фрейма
+бикона </string>
        </property>
       </column>
      </widget>
@@ -74,7 +79,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>500</width>
+     <width>570</width>
      <height>21</height>
     </rect>
    </property>

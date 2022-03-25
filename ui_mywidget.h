@@ -38,7 +38,7 @@ public:
     {
         if (MyWidget->objectName().isEmpty())
             MyWidget->setObjectName(QString::fromUtf8("MyWidget"));
-        MyWidget->resize(500, 400);
+        MyWidget->resize(570, 400);
         centralwidget = new QWidget(MyWidget);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayout = new QGridLayout(centralwidget);
@@ -58,7 +58,7 @@ public:
         m_table->setHorizontalHeaderItem(4, __qtablewidgetitem4);
         m_table->setObjectName(QString::fromUtf8("m_table"));
         m_table->setEnabled(true);
-        m_table->horizontalHeader()->setDefaultSectionSize(90);
+        m_table->horizontalHeader()->setDefaultSectionSize(100);
         m_table->verticalHeader()->setDefaultSectionSize(23);
 
         gridLayout->addWidget(m_table, 0, 0, 1, 2);
@@ -77,7 +77,7 @@ public:
         MyWidget->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MyWidget);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 500, 21));
+        menubar->setGeometry(QRect(0, 0, 570, 21));
         MyWidget->setMenuBar(menubar);
         statusbar = new QStatusBar(MyWidget);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -92,15 +92,20 @@ public:
     {
         MyWidget->setWindowTitle(QCoreApplication::translate("MyWidget", "ParseWireshark", nullptr));
         QTableWidgetItem *___qtablewidgetitem = m_table->horizontalHeaderItem(0);
-        ___qtablewidgetitem->setText(QCoreApplication::translate("MyWidget", "Rx", nullptr));
+        ___qtablewidgetitem->setText(QCoreApplication::translate("MyWidget", "\320\237\321\200\320\270\320\265\320\274\320\275\320\270\320\272", nullptr));
         QTableWidgetItem *___qtablewidgetitem1 = m_table->horizontalHeaderItem(1);
-        ___qtablewidgetitem1->setText(QCoreApplication::translate("MyWidget", "Tx", nullptr));
+        ___qtablewidgetitem1->setText(QCoreApplication::translate("MyWidget", "\320\237\320\265\321\200\320\265\320\264\320\260\321\202\321\207\320\270\320\272", nullptr));
         QTableWidgetItem *___qtablewidgetitem2 = m_table->horizontalHeaderItem(2);
-        ___qtablewidgetitem2->setText(QCoreApplication::translate("MyWidget", "numPkt", nullptr));
+        ___qtablewidgetitem2->setText(QCoreApplication::translate("MyWidget", "\320\235\320\276\320\274\320\265\321\200\n"
+"\320\277\321\200\320\276\320\277\321\203\321\211\320\265\320\275\320\275\320\276\320\263\320\276\n"
+"\320\277\320\260\320\272\320\265\321\202\320\260", nullptr));
         QTableWidgetItem *___qtablewidgetitem3 = m_table->horizontalHeaderItem(3);
-        ___qtablewidgetitem3->setText(QCoreApplication::translate("MyWidget", "numFramePkt", nullptr));
+        ___qtablewidgetitem3->setText(QCoreApplication::translate("MyWidget", "\320\235\320\276\320\274\320\265\321\200 \321\204\321\200\320\265\320\271\320\274\320\260\n"
+"\320\277\321\200\320\276\320\277\321\203\321\211\320\265\320\275\320\275\320\276\320\263\320\276\n"
+"\320\277\320\260\320\272\320\265\321\202\320\260", nullptr));
         QTableWidgetItem *___qtablewidgetitem4 = m_table->horizontalHeaderItem(4);
-        ___qtablewidgetitem4->setText(QCoreApplication::translate("MyWidget", "numFrameBeac", nullptr));
+        ___qtablewidgetitem4->setText(QCoreApplication::translate("MyWidget", "\320\235\320\276\320\274\320\265\321\200 \321\204\321\200\320\265\320\271\320\274\320\260\n"
+"\320\261\320\270\320\272\320\276\320\275\320\260 ", nullptr));
         m_button->setText(QCoreApplication::translate("MyWidget", "\320\236\321\202\320\272\321\200\321\213\321\202\321\214", nullptr));
     } // retranslateUi
 

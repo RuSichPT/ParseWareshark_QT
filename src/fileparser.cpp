@@ -180,18 +180,29 @@ void FileParser::parseService(Pkt_Hdr *PktData, int numFrame)
             LenToNext_field = type_Hdr->LenToNext;
 
             // Смотрим все служебные пакеты и запоминаем номер последнего пакета от абонента
-            if ( (PktData->Data_type == PKT_TYPE_CTS)
-                 || (PktData->Data_type == PKT_TYPE_RTS)
-                 || (PktData->Data_type == PKT_TYPE_ACK)
-                 || (PktData->Data_type == PKT_TYPE_NACK)
-                 || (PktData->Data_type == PKT_TYPE_DATA_MAP)
-                 || (PktData->Data_type == PKT_TYPE_DATA_MAP_REQUEST)
+            if ( (type_Hdr->Type == PKT_TYPE_CTS)
+                 || (type_Hdr->Type == PKT_TYPE_RTS)
+                 || (type_Hdr->Type == PKT_TYPE_ACK)
+                 || (type_Hdr->Type == PKT_TYPE_NACK)
+                 || (type_Hdr->Type == PKT_TYPE_DATA_MAP)
+                 || (type_Hdr->Type == PKT_TYPE_DATA_MAP_REQUEST)
+                 || (type_Hdr->Type == PKT_TYPE_CONTROL_NUMBER)
                  )
             {
+                uint8_t pktNumber;
 
-                Pkt_Service *Service = (Pkt_Service *)(type_Hdr);
+                if (type_Hdr->Type == PKT_TYPE_CONTROL_NUMBER)
+                {
+                    Pkt_control_number *controlPkt = (Pkt_control_number *)(type_Hdr);
+                    pktNumber = controlPkt->pkt_number;
+                }
+                else
+                {
+                    Pkt_Service *servicePkt = (Pkt_Service *)(type_Hdr);
+                    pktNumber = servicePkt->pkt_number;
+                }
 
-                setCounter(PktData->SrcAddr, Service->pkt_number, numFrame);
+                setCounter(PktData->SrcAddr, pktNumber, numFrame);
             }
             type_Hdr = (Pkt_type_Hdr*) ( ((uint8_t*)(&(type_Hdr->LenToNext))) + sizeof(PKT_LENTONEXT_TYPE) + LenToNext_field );
         }
@@ -210,7 +221,7 @@ void FileParser::parseBeacon(Pkt_Hdr *PktData, int beacFrameNum)
 
             for (int var = 0; var < MAX_RADIO_CONNECTIONS; ++var)
             {
-                counter_t* counter = getCounter(Beacon->AS[var].addr);
+                counter_t *counter = getCounter(Beacon->AS[var].addr);
                 if (counter != nullptr)
                 {
                     // Не смотрим пропуски у источника бикона

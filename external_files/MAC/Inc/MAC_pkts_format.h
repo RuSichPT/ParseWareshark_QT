@@ -35,6 +35,7 @@ typedef enum SIZE_OF_ENUM_UINT8
 	PKT_TYPE_MAC_IP_REQ			= 17,	// запрос mac ip
 	PKT_TYPE_MAC_IP_REP			= 18,	// ответ mac ip
 	PKT_TYPE_NET_MAP			= 19,	// список сетевых адресов
+	PKT_TYPE_CONTROL_NUMBER		= 20,	// пакет только с номером пакета для контроля пакетов
 
 //	PKT_TYPE_DATA_LITE          = 6,    // Uncst/Mltcst/Brdcst
 
@@ -346,6 +347,13 @@ typedef struct
 	};
 	Reservation_entry_t			res_entry[];	// запись о резервировании
 } Pkt_Service;
+
+typedef struct
+{
+	PKT_TYPE_TYPE			Type;
+	PKT_LENTONEXT_TYPE		LenToNext;
+	uint8_t					pkt_number;		// порядковый номер пакета
+} Pkt_control_number;
 
 typedef struct
 {
