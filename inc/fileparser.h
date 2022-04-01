@@ -7,7 +7,7 @@
 #include <QTimer>
 #include "external_files/MAC/Inc/MAC_pkts_format.h"  //Pkt_Hdr, VSV_t ,Pkt_type_Hdr и тд
 #include "external_files/Routing/Rout_control_pkt.h"
-#include "required.h" //UCOS_CMD_TXDATA
+#include "external_files/PktControl/PktControl.h"
 
 #define VSV_BITS                    4
 #define VSV_MSK                     ((1 << VSV_BITS) - 1)

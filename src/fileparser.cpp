@@ -1,5 +1,6 @@
 #include "inc/fileparser.h"
 #include "inc/mywidget.h"
+#include "external_files/MAC/Inc/ModemProtocol.h" //UCOS_CMD_TXDATA
 #include <QDebug>
 
 FileParser::FileParser(QObject *parent)
