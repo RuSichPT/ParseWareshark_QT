@@ -192,7 +192,7 @@ char* output_virt_ch_function(Virt_ch_func_t func);
 
 char* output_task_operation(Task_Operation_t operation);
 
-char* output_virt_ch_state(Vch_State_t state);
+char* output_virt_ch_state(Vch_Ready_Func_t state);
 
 void output_reserv_enties(Reserv_elem_t *head_elem);
 

@@ -75,6 +75,8 @@ void check_pkt_on_buffering(const Chain_buffer_elem_t *slot_buffer);
 
 Pkt_hdr_buf_t* get_pkt_from_cycle_buff(U8_T pkt_number);
 
+void find_and_delete_all_pkts_for_VCH(U8_T virt_ch_num, PKT_ADDR_TYPE src_addr);
+
 void find_and_delete_pkt_in_cycle_buff(const Pkt_Service *serviceData, PKT_ADDR_TYPE src_addr);
 
 Bool_t search_index_in_queue(U8_T index, const indexQueue_TypeDef *queue, U8_T size_queue);

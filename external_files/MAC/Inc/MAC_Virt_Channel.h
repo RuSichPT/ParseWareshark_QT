@@ -47,23 +47,34 @@ enum
 
 typedef enum SIZE_OF_ENUM_UINT8
 {
-	VCH_FUNC_NOTHING					,
-	VCH_FUNC_SEND_RTS 					,  // нужно отправить RTS
-	VCH_FUNC_SEND_CTS 					,  // нужно отправить CTS
-	VCH_FUNC_SEND_CTS_ALT 				,  // нужно отправить CTS со своим вариантом резервирования
-	VCH_FUNC_SEND_ACK 					,  // нужно отправить ACK на широковещательный CTS
-	VCH_FUNC_SEND_NACK_CLOSING 			,  // нужно отправить NACK для закрытия вирт. канала
-	VCH_FUNC_SEND_NACK_CLOSING_RESP		,  // нужно отправить ответный NACK для закрытия вирт. канала
-	VCH_FUNC_SEND_NACK_CLOSING_REPEAT	,  // нужно повторить NACK для закрытия вирт. канала, если инф-ции о ВК уже нет
-	VCH_FUNC_SEND_NACK_REDUCING 		,  // нужно отправить NACK для уменьшения полосы вирт. канала
-	VCH_FUNC_SEND_NACK_ERROR 			,  // нужно отправить NACK в случае ошибочного запроса на резервирование
-	VCH_FUNC_SEND_NACK_NOT_EXISTS 		,  // нужно отправить NACK в случае отсутствии вирт. канала
-	VCH_FUNC_WAIT_CTS 					,  // ждем CTS
-	VCH_FUNC_WAIT_ACK					,  // ждем ACK после отправки CTS
-	VCH_FUNC_WAIT_NACK					,  // ждем ответный NACK, если он не был принят, повторяем NACK
-	VCH_FUNC_DELETE						,  // помечаем канал, чтобы удалить его в начале следующего фрейма
-	VCH_FUNC_WAIT_MERGE_DISTR			,  // ждем конца фрейма, чтобы применить планируемые ЗоР
+	VCH_F_NOTHING						,
+	VCH_F_SEND_RTS 						,  // нужно отправить RTS
+	VCH_F_SEND_CTS 						,  // нужно отправить CTS
+	VCH_F_SEND_CTS_ALT 					,  // нужно отправить CTS со своим вариантом резервирования
+	VCH_F_SEND_ACK 						,  // нужно отправить ACK на широковещательный CTS
 
+	VCH_F_SEND_NACK_CLOSING 			,  // нужно отправить NACK для закрытия вирт. канала
+	VCH_F_SEND_NACK_CLOSING_RESP		,  // нужно отправить ответный NACK для закрытия вирт. канала
+
+	VCH_F_SEND_NACK_CLOSING_REPEAT		,  // нужно повторить NACK для закрытия вирт. канала, если инф-ции о ВК уже нет
+
+	VCH_F_SEND_NACK_REDUCING 			,  // нужно отправить NACK для уменьшения полосы вирт. канала
+
+	VCH_F_SEND_NACK_FORCE_REDUCING 		,  // нужно отправить NACK для принудительного уменьшения полосы вирт. канала
+	VCH_F_SEND_NACK_FORCE_REDUC_RESP	,  // нужно отправить ответный NACK для принудительного уменьшения полосы вирт. канала
+
+	VCH_F_SEND_NACK_ERROR 				,  // нужно отправить NACK в случае ошибочного запроса на резервирование
+	VCH_F_SEND_NACK_ERROR_RESP 			,  // нужно отправить ответный NACK в случае ошибочного запроса на резервирование
+
+	VCH_F_SEND_NACK_NOT_EXISTS 			,  // нужно отправить NACK в случае отсутствии вирт. канала
+
+	VCH_F_WAIT_CTS 						,  // ждем CTS
+	VCH_F_WAIT_ACK						,  // ждем ACK после отправки CTS
+	VCH_F_WAIT_NACK_FORCE_REDUCING		,  // ждем ответ на NACK_REDUCING, повторяем его, если ответ не был принят
+	VCH_F_WAIT_NACK_ERROR				,  // ждем ответ на NACK_ERROR, повторяем его, если ответ не был принят
+	VCH_F_WAIT_NACK_CLOSING				,  // ждем ответ на NACK_CLOSING, повторяем его, если ответ не был принят
+	VCH_F_DELETE						,  // помечаем канал, чтобы удалить его в начале следующего фрейма
+	VCH_F_WAIT_MERGE_DISTR				,  // ждем конца фрейма, чтобы применить планируемые ЗоР
 } PACKED Virt_ch_func_t;
 
 typedef union
@@ -215,10 +226,10 @@ extern U8_T num_sorted_virt_chs;
 
 extern Vch_Bridge_t bridge_list[MAX_VIRT_CH_BRIDGE];
 extern Reserv_elem_t reserv_elem_list[MAX_RESERVATION_ENTRY];
+extern U8_T last_reserv_elem_index;
 
 extern U8_T lock_list_size;
 extern Lock_list_t lock_list[MAX_NUM_LOCK_ENTRIES];
-
 
 extern uint8_t service_msg_queue[QUEUE_BUF_SZ(SERV_MSG_QUEUE_SZ)];
 
@@ -327,6 +338,8 @@ void delete_all_reserv_entries_from_bridge(Vch_Bridge_t *bridge);
 
 #if (CHECK_VALID_RESERV_ENTRIES)
 void check_leak_of_reserv_entries();
+
+void check_leak_of_sending_srv_msg();
 
 void check_readiness_without_curr_re();
 #endif

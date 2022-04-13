@@ -79,7 +79,6 @@
 
 #define SLOTS_PER_IVA								(3)
 
-// todo
 #define SLOTS_PER_BEACON							GetNumSlots_PRD1(PKT_HDR_LEN + PKT_BEACON_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)
 
 // старт

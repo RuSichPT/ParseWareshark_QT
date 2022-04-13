@@ -17,25 +17,29 @@
 typedef enum SIZE_OF_ENUM_UINT8
 {
 	PKT_TYPE_BEACON				= 1,	// Brdcst
-	PKT_TYPE_RTS				= 2,	// Uncst
-	PKT_TYPE_CTS				= 3,	// Uncst/Brdcst
+	PKT_TYPE_RTS				= 2,	// Brdcst
+	PKT_TYPE_CTS				= 3,	// Brdcst
 	PKT_TYPE_ACK				= 4,	// Brdcst
 	PKT_TYPE_NACK				= 5,	// Brdcst
-	PKT_TYPE_VIRT_CH_READY		= 6,	// Uncst
-	PKT_TYPE_DATA				= 7,	// Uncst/Mltcst/Brdcst
-	PKT_TYPE_DATA_TIMEMARKED	= 8,	// Uncst/Mltcst/Brdcst
-	PKT_TYPE_REQUEST			= 9,	// Uncst/Mltcst/Brdcst
-	PKT_TYPE_DATA_MAP			= 10,	// Brdcst
-	PKT_TYPE_DATA_MAP_REQUEST	= 11,	// Brdcst
-	PKT_TYPE_CONNECT_REQUEST	= 12,	// Brdcst
-	PKT_TYPE_TIME_CORRECTION	= 13,	// Brdcst
-	PKT_TYPE_RREQ				= 14,	// запрос на маршрут Brdcst
-	PKT_TYPE_RREP				= 15,	// ответ на запрос Uncst
-	PKT_TYPE_RERR				= 16,	// ошибка маршрута Uncst/Brdcst
-	PKT_TYPE_MAC_IP_REQ			= 17,	// запрос mac ip
-	PKT_TYPE_MAC_IP_REP			= 18,	// ответ mac ip
-	PKT_TYPE_NET_MAP			= 19,	// список сетевых адресов
-	PKT_TYPE_CONTROL_NUMBER		= 20,	// пакет только с номером пакета для контроля пакетов
+	PKT_TYPE_NACK_R				= 6,	// Brdcst // NACK Response
+	PKT_TYPE_VCH_READINESS		= 7,	// Brdcst
+	PKT_TYPE_DATA				= 8,	// Uncst
+	PKT_TYPE_DATA_TIMEMARKED	= 9,	// Uncst
+	PKT_TYPE_REQUEST			= 10,	// Uncst/Mltcst/Brdcst
+	PKT_TYPE_DATA_MAP			= 11,	// Brdcst
+	PKT_TYPE_DATA_MAP_REQUEST	= 12,	// Brdcst
+	PKT_TYPE_CONNECT_REQUEST	= 13,	// Brdcst
+	PKT_TYPE_TIME_CORRECTION	= 14,	// Brdcst
+	PKT_TYPE_RREQ				= 15,	// запрос на маршрут Brdcst
+	PKT_TYPE_RREP				= 16,	// ответ на запрос Uncst
+	PKT_TYPE_RERR				= 17,	// ошибка маршрута Uncst/Brdcst
+	PKT_TYPE_MAC_IP_REQ			= 18,	// запрос mac ip
+	PKT_TYPE_MAC_IP_REP			= 19,	// ответ mac ip
+	PKT_TYPE_NET_MAP			= 20,	// список сетевых адресов
+	PKT_TYPE_CONTROL_NUMBER		= 21,	// пакет только с номером пакета для контроля пакетов
+
+//	PKT_TYPE_FORCE_RTS          = 6,	// Brdcst
+//	PKT_TYPE_FORCE_CTS          = 7,	// Brdcst
 
 //	PKT_TYPE_DATA_LITE          = 6,    // Uncst/Mltcst/Brdcst
 
@@ -43,7 +47,7 @@ typedef enum SIZE_OF_ENUM_UINT8
 //	PKT_TYPE_REBUILD_REQ_INITIATIVE 	= 13,	//Brdcst
 //	PKT_TYPE_REBUILD_REQ_RETRANSMISSION = 14,	//Brdcst
 //	PKT_TYPE_TEST						= 15,	//Brdcst
-	PKT_TYPE_MAX_VALUE
+	PKT_TYPE_MAX_VALUE			= 255,
 } PACKED PktType;
 
 typedef enum SIZE_OF_ENUM_UINT16
@@ -75,9 +79,10 @@ typedef enum SIZE_OF_ENUM_UINT8
 {
 	REASON_TRAFF_END 		= 0,
 	REASON_ERROR_RESERVING	= 1,
-	REASON_REPLACE			= 2,
-	REASON_NOT_EXISTS		= 3,
-	REASON_TRAFF_END_REP	= 4,
+	REASON_REDUCING			= 2,
+	REASON_FORCE_REDUCING	= 3,
+	REASON_NOT_EXISTS		= 4,
+	REASON_TRAFF_END_REP	= 5,
 } PACKED ClosingReason_t;
 
 typedef enum SIZE_OF_ENUM_UINT8
@@ -448,15 +453,17 @@ typedef struct
 	uint16_t				sta_addr[];
 } Pkt_net_map;
 
-//
 typedef struct
 {
 	PKT_TYPE_TYPE 			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
-	uint16_t 				pkt_dest_addr;	// адрес назначения сообщения
-	uint16_t 				src_addr;		// адрес инициатора обмена
-	uint8_t					virt_ch_num;	// номер виртуального канала
-} Pkt_Virt_ch_ready;
+	uint16_t 				src_addr;				// адрес инициатора обмена
+	uint8_t					virt_ch_num;			// номер виртуального канала
+	uint8_t					ready			: 4;	// 1 - участок ВК готов, 0 - участок ВК не готов
+	uint8_t					response		: 4;	// 1 - на это сообщ-е отвечать не нужно
+	uint16_t 				br_dest_addr;			// адрес принимающего узла участка ВК
+	uint16_t 				br_src_addr;			// адрес передающего узла участка ВК
+} Pkt_Vch_Readiness;
 
 #pragma pack(pop)
 
@@ -465,15 +472,17 @@ typedef struct
 #pragma pack(push, 1)
 typedef enum SIZE_OF_ENUM_UINT8
 {
-	FRAGMENT_NOT_LAST		= 0,
-	FRAGMENT_LAST			= 1
+	FRAGMENT_FIRST_AND_LAST	= 0,
+	FRAGMENT_FIRST_NOT_LAST	= 1,
+	FRAGMENT_NOT_LAST		= 2,
+	FRAGMENT_LAST			= 3
 } PACKED FragmentEnd;
 
 typedef struct
 {
-	uint8_t					Num	:6; //номер фрагмента внутри пакета
-	uint8_t					Pkt	:1; //номер текущего пакета, меняется только при фрагментировании, используется для идентификации того, что текущий принятый фрагмент это продолжение предыдущего пакета, а не какойто фрагмент уже нового пакета
-	FragmentEnd				End	:1; //признак того, что фрагмент последний
+	uint8_t					Num	:4; //номер фрагмента внутри пакета
+	uint8_t					Pkt	:2; //номер текущего пакета, меняется только при фрагментировании, используется для идентификации того, что текущий принятый фрагмент это продолжение предыдущего пакета, а не какойто фрагмент уже нового пакета
+	FragmentEnd				End	:2; //признак того, что фрагмент последний
 } FragmentType;
 
 typedef struct
