@@ -7,7 +7,7 @@
 
 #include "external_files/MAC/Inc/MAC_debug.h"
 #include "external_files/MAC/Inc/MAC_Max_STA_Num.h"	//MAX_RADIO_CONNECTIONS
-//#include "MAC/Inc/ModemProtocol.h"		//PP_FRQ_PER_SLOT, GetSlot_PRD1(), ..
+#include "external_files/MAC/Inc/ModemProtocol.h"		//PP_FRQ_PER_SLOT, GetSlot_PRD1(), ..
 #include "external_files/MAC/Inc/MAC_pkts_format.h"	//PKT_BEACON_LEN
 
 

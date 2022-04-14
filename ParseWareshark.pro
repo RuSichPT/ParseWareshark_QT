@@ -24,15 +24,11 @@ HEADERS += \
     external_files/MAC/Inc/MAC_Max_STA_Num.h \
     external_files/MAC/Inc/MAC_Timeline.h \
     external_files/MAC/Inc/MAC_Timers.h \
-    external_files/MAC/Inc/MAC_Virt_Channel.h \
     external_files/MAC/Inc/MAC_debug.h \
     external_files/MAC/Inc/MAC_pkts_format.h \
     external_files/MAC/Inc/ModemProtocol.h \
-    external_files/PktControl/PktControl.h \
-    external_files/Routing/Rout_control_pkt.h \
     external_files/debug.h \
     external_files/eth.h \
-    external_files/pbuffs.h \
     external_files/types.h \
     inc/fileparser.h \
     inc/mywidget.h \
