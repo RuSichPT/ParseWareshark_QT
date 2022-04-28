@@ -189,6 +189,8 @@ void FileParser::parseService(Pkt_Hdr *PktData, int numFrame)
                  || (type_Hdr->Type == PKT_TYPE_DATA_MAP)
                  || (type_Hdr->Type == PKT_TYPE_DATA_MAP_REQUEST)
                  || (type_Hdr->Type == PKT_TYPE_CONTROL_NUMBER)
+                 || (type_Hdr->Type == PKT_TYPE_FORCE_RTS)
+                 || (type_Hdr->Type == PKT_TYPE_FORCE_CTS)
                  )
             {
                 uint8_t pktNumber;

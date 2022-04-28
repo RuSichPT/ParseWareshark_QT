@@ -146,6 +146,8 @@ typedef enum SIZE_OF_ENUM_UINT32
 #define GetLen_PRD1(Time)       ( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) / 2) - LEN_BYTES - CRC_BYTES ) )
 #define GetLen_PRD2(Time)       ( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) ) - LEN_BYTES - CRC_BYTES ) )
 
+#define GET_MIN_SPEED_LEN(slots)		GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
+
 #define	MODEM_SPEED_CNT			2//сколько скоросетй умеет модем
 
 // Параметры КСС
@@ -177,6 +179,8 @@ typedef enum SIZE_OF_ENUM_UINT32
 #define GetLen_PRD1(Time)				( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) / 2) - LEN_BYTES - CRC_BYTES ) )
 #define GetLen_PRD2(Time)				( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) ) - LEN_BYTES - CRC_BYTES ) )
 #define GetLen_PRD3(Time)				( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 700)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) * 2) - LEN_BYTES - CRC_BYTES ) )
+
+#define GET_MIN_SPEED_LEN(slots)		GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
 
 #define GetNumSlots_PRD1(len, t_inr)	(uint32_t)( ( ( (len) * 2000 + (2 * (LEN_BYTES + CRC_BYTES) + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 600) / ((t_inr) * 1.0) + 1)
 #define GetNumSlots_PRD2(len, t_inr)	(uint32_t)( ( ( (len) * 1000 + (LEN_BYTES + CRC_BYTES + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 600) / ((t_inr) * 1.0) + 1)

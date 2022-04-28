@@ -20,26 +20,25 @@ typedef enum SIZE_OF_ENUM_UINT8
 	PKT_TYPE_RTS				= 2,	// Brdcst
 	PKT_TYPE_CTS				= 3,	// Brdcst
 	PKT_TYPE_ACK				= 4,	// Brdcst
-	PKT_TYPE_NACK				= 5,	// Brdcst
-	PKT_TYPE_NACK_R				= 6,	// Brdcst // NACK Response
-	PKT_TYPE_VCH_READINESS		= 7,	// Brdcst
-	PKT_TYPE_DATA				= 8,	// Uncst
-	PKT_TYPE_DATA_TIMEMARKED	= 9,	// Uncst
-	PKT_TYPE_REQUEST			= 10,	// Uncst/Mltcst/Brdcst
-	PKT_TYPE_DATA_MAP			= 11,	// Brdcst
-	PKT_TYPE_DATA_MAP_REQUEST	= 12,	// Brdcst
-	PKT_TYPE_CONNECT_REQUEST	= 13,	// Brdcst
-	PKT_TYPE_TIME_CORRECTION	= 14,	// Brdcst
-	PKT_TYPE_RREQ				= 15,	// запрос на маршрут Brdcst
-	PKT_TYPE_RREP				= 16,	// ответ на запрос Uncst
-	PKT_TYPE_RERR				= 17,	// ошибка маршрута Uncst/Brdcst
-	PKT_TYPE_MAC_IP_REQ			= 18,	// запрос mac ip
-	PKT_TYPE_MAC_IP_REP			= 19,	// ответ mac ip
-	PKT_TYPE_NET_MAP			= 20,	// список сетевых адресов
-	PKT_TYPE_CONTROL_NUMBER		= 21,	// пакет только с номером пакета для контроля пакетов
-
-//	PKT_TYPE_FORCE_RTS          = 6,	// Brdcst
-//	PKT_TYPE_FORCE_CTS          = 7,	// Brdcst
+	PKT_TYPE_FORCE_RTS          = 5,	// Brdcst
+	PKT_TYPE_FORCE_CTS          = 6,	// Brdcst
+	PKT_TYPE_NACK				= 7,	// Brdcst
+	PKT_TYPE_NACK_R				= 8,	// Brdcst // NACK Response
+	PKT_TYPE_VCH_READINESS		= 9,	// Brdcst
+	PKT_TYPE_DATA				= 10,	// Uncst
+	PKT_TYPE_DATA_TIMEMARKED	= 11,	// Uncst
+	PKT_TYPE_REQUEST			= 12,	// Uncst/Mltcst/Brdcst
+	PKT_TYPE_DATA_MAP			= 13,	// Brdcst
+	PKT_TYPE_DATA_MAP_REQUEST	= 14,	// Brdcst
+	PKT_TYPE_CONNECT_REQUEST	= 15,	// Brdcst
+	PKT_TYPE_TIME_CORRECTION	= 16,	// Brdcst
+	PKT_TYPE_RREQ				= 17,	// запрос на маршрут Brdcst
+	PKT_TYPE_RREP				= 18,	// ответ на запрос Uncst
+	PKT_TYPE_RERR				= 19,	// ошибка маршрута Uncst/Brdcst
+	PKT_TYPE_MAC_IP_REQ			= 20,	// запрос mac ip
+	PKT_TYPE_MAC_IP_REP			= 21,	// ответ mac ip
+	PKT_TYPE_NET_MAP			= 22,	// список сетевых адресов
+	PKT_TYPE_CONTROL_NUMBER		= 23,	// пакет только с номером пакета для контроля пакетов
 
 //	PKT_TYPE_DATA_LITE          = 6,    // Uncst/Mltcst/Brdcst
 
@@ -80,9 +79,8 @@ typedef enum SIZE_OF_ENUM_UINT8
 	REASON_TRAFF_END 		= 0,
 	REASON_ERROR_RESERVING	= 1,
 	REASON_REDUCING			= 2,
-	REASON_FORCE_REDUCING	= 3,
-	REASON_NOT_EXISTS		= 4,
-	REASON_TRAFF_END_REP	= 5,
+//	REASON_NOT_EXISTS		= 3, // todo потом убрать REASON_NOT_EXISTS
+	REASON_TRAFF_END_REP	= 4,
 } PACKED ClosingReason_t;
 
 typedef enum SIZE_OF_ENUM_UINT8
