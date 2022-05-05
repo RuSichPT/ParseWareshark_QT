@@ -6,6 +6,9 @@
 #include <QMenuBar>
 #include <QDebug>
 #include <QSettings>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 
 MyWidget::MyWidget(QWidget *parent)
     : QMainWindow(parent)
@@ -15,7 +18,7 @@ MyWidget::MyWidget(QWidget *parent)
 
     // Файл
     m_file = new QFile(this);
-    connect(ui->m_button, &QPushButton::clicked, this, &MyWidget::openFile);
+    connect(ui->m_button, &QPushButton::clicked, this, &MyWidget::onClickedButton);
 
     // Иконка
     QIcon icon = QIcon(":/res/images/icon.ico");
@@ -23,6 +26,9 @@ MyWidget::MyWidget(QWidget *parent)
 
     // Создаем меню
     createMenus();
+
+    // Drag and Drop
+    setAcceptDrops(true);
 }
 
 MyWidget::~MyWidget()
@@ -30,23 +36,38 @@ MyWidget::~MyWidget()
     delete ui;
 }
 
-void MyWidget::openFile()
+void MyWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    QStringList formats = event->mimeData()->formats();
+
+    for (auto &elem : formats)
+    {
+        qDebug() << elem;
+    }
+
+    QString fileName = event->mimeData()->urls()[0].toLocalFile();
+
+    if (fileName.contains(".pcap"))
+    {
+        event->acceptProposedAction();
+    }
+}
+
+void MyWidget::dropEvent(QDropEvent *event)
+{
+    QString fileName = event->mimeData()->urls()[0].toLocalFile();
+    openFile(fileName);
+
+    event->acceptProposedAction(); //сообщаем виджету-источнику, что успешно приняли его содержимое.
+}
+
+void MyWidget::openFile(const QString &fileName)
 {
     // Очищаем таблицу
     clearTable();
 
-    // Создаем запись в реестре для сохранения пути
-    QSettings settings("ParseWireshark","path");
-    QString dir = settings.value("path").toString();
-
-    // Запускаем диалоговое окно выбора файла
-    QString nameFile = QFileDialog::getOpenFileName(this, "Открыть файл", dir, "*pcap");
-
     // Устанавиливаем выбранный файл
-    m_file->setFileName(nameFile);
-
-    // Устанавливаем значение в реестре
-    settings.setValue("path", nameFile);
+    m_file->setFileName(fileName);
 
     // Открываем файл
     if (!m_file->open(QIODevice::ReadOnly))
@@ -67,6 +88,21 @@ void MyWidget::openFile()
     printMissedPkt(parser.getMissedPkts());
 }
 
+void MyWidget::onClickedButton()
+{
+    // Создаем запись в реестре для сохранения пути
+    QSettings settings("ParseWireshark","path");
+    QString dir = settings.value("path").toString();
+
+    // Запускаем диалоговое окно выбора файла
+    QString fileName = QFileDialog::getOpenFileName(this, "Открыть файл", dir, "*pcap");
+
+    // Устанавливаем значение в реестре
+    settings.setValue("path", fileName);
+
+    openFile(fileName);
+}
+
 void MyWidget::updateBar(uint64_t readBytes)
 {
     int progress;
@@ -74,7 +110,7 @@ void MyWidget::updateBar(uint64_t readBytes)
     ui->m_pBar->setValue(progress);
 }
 
-void MyWidget::printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts)
+void MyWidget::printMissedPkt(const QVector<FileParser::missedPkt_t> &missedPkts)
 {
     int row{0};
 
@@ -131,7 +167,7 @@ void MyWidget::createMenus()
 
     QAction *openAct = new QAction("&Открыть", this);
     fileMenu->addAction(openAct);
-    connect(openAct, &QAction::triggered, this, &MyWidget::openFile);
+    connect(openAct, &QAction::triggered, this, &MyWidget::onClickedButton);
 
     fileMenu->addSeparator();
 

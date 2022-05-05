@@ -34,16 +34,21 @@ public:
     ~MyWidget();
 
 public slots:
-    void openFile();
+    void onClickedButton();
     void updateBar(uint64_t readBytes);
 
 private:
     Ui::MyWidget    *ui;
     QFile           *m_file;
 
+protected:
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
+    virtual void dropEvent(QDropEvent *event) override;
+
 private:
-    void printMissedPkt(QVector<FileParser::missedPkt_t> &missedPkts);
+    void printMissedPkt(const QVector<FileParser::missedPkt_t> &missedPkts);
     void createMenus();
+    void openFile(const QString &fileName);
     void clearTable();
 };
 #endif // MYWIDGET_H
