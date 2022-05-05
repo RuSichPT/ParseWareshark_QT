@@ -35,6 +35,7 @@ public:
 
 public slots:
     void onClickedButton();
+    void onClickedHeader(int logicalIndex);
     void updateBar(uint64_t readBytes);
 
 private:
