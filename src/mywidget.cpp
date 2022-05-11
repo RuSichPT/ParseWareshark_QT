@@ -26,6 +26,7 @@ MyWidget::MyWidget(QWidget *parent)
     connect(ui->m_table2->horizontalHeader(), &QHeaderView::sectionClicked, this, &MyWidget::onClickedTable2Header);
     // Запрещаем изменения в таблице
     ui->m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->m_table2->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Иконка
     QIcon icon = QIcon(":/res/images/icon.ico");
@@ -146,11 +147,17 @@ void MyWidget::printMissedPkts(const QVector<FileParser::MissedPkt_t> &missedPkt
         foreach (const auto &missedPkt, missedPkts)
         {
             // Создаем ячейки для таблицы
-            QTableWidgetItem *rxItem = new QTableWidgetItem(QString::number(missedPkt.destAddr));
-            QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(missedPkt.srcAddr));
-            QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(missedPkt.pktNumber));
-            QTableWidgetItem *pktFrameItem = new QTableWidgetItem(QString::number(missedPkt.pktFrameNumber));
-            QTableWidgetItem *beacNumbItem = new QTableWidgetItem(QString::number(missedPkt.beacFrameNumber));
+            QTableWidgetItem *rxItem = new QTableWidgetItem;
+            QTableWidgetItem *txItem = new QTableWidgetItem;
+            QTableWidgetItem *ptkNumbItem = new QTableWidgetItem;
+            QTableWidgetItem *pktFrameItem = new QTableWidgetItem;
+            QTableWidgetItem *beacNumbItem = new QTableWidgetItem;
+
+            rxItem->setData(Qt::DisplayRole, missedPkt.destAddr);
+            txItem->setData(Qt::DisplayRole, missedPkt.srcAddr);
+            ptkNumbItem->setData(Qt::DisplayRole, missedPkt.pktNumber);
+            pktFrameItem->setData(Qt::DisplayRole, missedPkt.pktFrameNumber);
+            beacNumbItem->setData(Qt::DisplayRole, missedPkt.beacFrameNumber);
 
             rxItem->setTextAlignment(Qt::AlignCenter);
             txItem->setTextAlignment(Qt::AlignCenter);
@@ -182,9 +189,13 @@ void MyWidget::printRepeatedPkts(const QVector<FileParser::RepeatedPkt_t> &repea
         for (const auto &repeatedPkt: repeatedPkts)
         {
             // Создаем ячейки для таблицы
-            QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(repeatedPkt.srcAddr));
-            QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(repeatedPkt.pktNumber));
-            QTableWidgetItem *pktFrameItem = new QTableWidgetItem(QString::number(repeatedPkt.pktFrameNumber));
+            QTableWidgetItem *txItem = new QTableWidgetItem;
+            QTableWidgetItem *ptkNumbItem = new QTableWidgetItem;
+            QTableWidgetItem *pktFrameItem = new QTableWidgetItem;
+
+            txItem->setData(Qt::DisplayRole, repeatedPkt.srcAddr);
+            ptkNumbItem->setData(Qt::DisplayRole, repeatedPkt.pktNumber);
+            pktFrameItem->setData(Qt::DisplayRole, repeatedPkt.pktFrameNumber);
 
             txItem->setTextAlignment(Qt::AlignCenter);
             ptkNumbItem->setTextAlignment(Qt::AlignCenter);
