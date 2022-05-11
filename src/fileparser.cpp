@@ -3,6 +3,10 @@
 #include "external_files/MAC/Inc/ModemProtocol.h" //UCOS_CMD_TXDATA
 #include <QDebug>
 
+typedef FileParser::Counter_t       Counter_t;
+typedef FileParser::MissedPkt_t     MissedPkt_t;
+typedef FileParser::RepeatedPkt_t   RepeatedPkt_t;
+
 FileParser::FileParser(QObject *parent)
     : QObject(parent)
     , m_readBytes(0)
@@ -17,7 +21,7 @@ FileParser::~FileParser()
 
 }
 
-FileParser::counter_t *FileParser::getCounter(uint16_t addr)
+Counter_t* FileParser::getCounter(uint16_t addr)
 {
     if(!m_counters.isEmpty())
     {
@@ -35,42 +39,60 @@ FileParser::counter_t *FileParser::getCounter(uint16_t addr)
 
 void FileParser::setCounter(uint16_t addr, uint8_t pktNumber, int frameNumber)
 {
-    counter_t *counter = getCounter(addr);
+    Counter_t *counter = getCounter(addr);
 
-    if(counter == nullptr)
+    if (counter == nullptr)
     {
-        counter_t tmp;
-        tmp.addr = addr;
-        tmp.currentpktNumber = pktNumber;
-
-        for(int i = 0; i < sizeMatch; i++)
-        {
-            tmp.matchPktToFrame[i] = 0;
-        }
-
-        m_counters.append(tmp);
+        counter = createCounter(addr, pktNumber);
     }
     else
     {
-        if(CompNum8(pktNumber, counter->currentpktNumber))
-        {
-            counter->currentpktNumber = pktNumber;
-        }
+        updateCurrentNumber(counter, pktNumber);
     }
 
-    counter = getCounter(addr);
     counter->matchPktToFrame[pktNumber] = frameNumber;
 }
 
-FileParser::missedPkt_t *FileParser::getMissedPkt(uint16_t addr)
+Counter_t* FileParser::createCounter(uint16_t addr, uint8_t pktNumber)
 {
-    if(!m_missedPkts.isEmpty())
+    Counter_t counter;
+    counter.addr = addr;
+    counter.currentPktNumber = pktNumber;
+
+    for(int i = 0; i < SIZE_MATCH; i++)
     {
-        for (int var = 0; var < m_missedPkts.size(); ++var)
+        counter.matchPktToFrame[i] = 0;
+    }
+
+    m_counters.append(counter);
+
+    return &m_counters[(m_counters.size()) - 1];
+}
+
+void FileParser::updateCurrentNumber(Counter_t *counter, uint8_t pktNumber)
+{
+    if (CompNum8(pktNumber, counter->currentPktNumber))
+    {
+        counter->currentPktNumber = pktNumber;
+
+        if (pktNumber == 0)
         {
-            if(m_missedPkts.at(var).addr == addr)
+            counter->currentCycle++;
+        }
+    }
+}
+
+MissedPkt_t* FileParser::getMissedPkt(uint16_t srcAddr, uint8_t pktNumber, int cycle)
+{
+    if (!m_missedPkts.isEmpty())
+    {
+        for (int i = 0; i < m_missedPkts.size(); i++)
+        {
+            if (m_missedPkts.at(i).srcAddr == srcAddr
+                    && m_missedPkts.at(i).pktNumber == pktNumber
+                    && m_missedPkts.at(i).cycle == cycle)
             {
-                return &m_missedPkts[var];
+                return &m_missedPkts[i];
             }
         }
     }
@@ -78,61 +100,59 @@ FileParser::missedPkt_t *FileParser::getMissedPkt(uint16_t addr)
     return nullptr;
 }
 
-void FileParser::setMissedPkt(uint16_t addr, uint16_t addrFrom, uint8_t pktNumber, int beacFrameNum, int pktFrameNum)
+void FileParser::setMissedPkt(uint16_t destAddr, uint16_t srcAddr, uint8_t pktNumber, int beacFrameNum, int pktFrameNum, int cycle)
 {
-    missedPkt_t *missedPkt = getMissedPkt(addr);
+    MissedPkt_t missedPkt;
 
-    if(missedPkt == nullptr)
-    {
-        missedPkt_t tmp;
-        mapAddrPkt_t tmpMap;
-        tmp.addr = addr;
-        tmpMap.addrFrom = addrFrom;
-        tmpMap.pktNumber = pktNumber;
-        tmpMap.pktFrameNumber = pktFrameNum;
-        tmpMap.beacFrameNumber = beacFrameNum;
-        tmp.pktNumbers.append(tmpMap);
-        m_missedPkts.append(tmp);
-    }
-    else
-    {
-        mapAddrPkt_t tmpMap;
-        tmpMap.addrFrom = addrFrom;
-        tmpMap.pktNumber = pktNumber;
-        tmpMap.pktFrameNumber = pktFrameNum;
-        tmpMap.beacFrameNumber = beacFrameNum;
-        missedPkt->pktNumbers.append(tmpMap);
-    }
+    missedPkt.destAddr = destAddr;
+    missedPkt.srcAddr = srcAddr;
+    missedPkt.pktNumber = pktNumber;
+    missedPkt.pktFrameNumber = pktFrameNum;
+    missedPkt.beacFrameNumber = beacFrameNum;
+    missedPkt.cycle = cycle;
+
+    m_missedPkts.append(missedPkt);
+}
+
+void FileParser::setRepeatedPkt(uint16_t srcAddr, uint8_t pktNumber, int pktFrameNum)
+{
+    RepeatedPkt_t repeatedPkt;
+
+    repeatedPkt.srcAddr = srcAddr;
+    repeatedPkt.pktNumber = pktNumber;
+    repeatedPkt.pktFrameNumber = pktFrameNum;
+
+    m_repeatedPkts.append(repeatedPkt);
 }
 
 void FileParser::readFile(QFile &file)
 {
-    if(file.exists())
+    if (file.exists())
     {
         QByteArray frameOf, frame;
         int lengthFrame;
         int numFrame {1};
 
         // Запускаем таймер
-        m_timer->start(updatePBarMsec);
-        file.read(startOffset);
-        m_readBytes += startOffset;
+        m_timer->start(UPDATE_PBAR_MSEC);
+        file.read(START_OFFSET);
+        m_readBytes += START_OFFSET;
         while(!file.atEnd())
         {
             if (m_timer->remainingTime() != 0)
             {
-                frameOf = file.read(framesOffset);
+                frameOf = file.read(FRAMES_OFFSET);
                 // Узнаем длину фрейма
-                lengthFrame = bytesToInt(frameOf, lengthFramOffs, sizeIntBytes);
+                lengthFrame = bytesToInt(frameOf, LEN_FRAME_OFFSET, SIZE_INT_BYTES);
                 frame = file.read(lengthFrame);
                 parseFrame(frame, numFrame);
                 numFrame++;
-                m_readBytes += framesOffset + lengthFrame;
+                m_readBytes += FRAMES_OFFSET + lengthFrame;
             }
             else
             {
                 emit timeout(m_readBytes);
-                m_timer->start(updatePBarMsec);
+                m_timer->start(UPDATE_PBAR_MSEC);
             }
         }
 
@@ -144,21 +164,21 @@ void FileParser::readFile(QFile &file)
 void FileParser::parseFrame(const QByteArray &frame, int numFrame)
 {
     // Узнаем тип
-    int typeFrame = bytesToInt(frame, typeFrameOffs, sizeShortBytes);
+    int typeFrame = bytesToInt(frame, TYPE_FRAME_OFFSET, SIZE_SHORT_BYTES);
     if (typeFrame == PP_HTONS(ETHTYPE_IP))
     {
         // Узнаем Modem_CMD_Name
-        int modemCMDName = bytesToInt(frame, UCOSOffset, sizeShortBytes);
+        int modemCMDName = bytesToInt(frame, UCOS_OFFSET, SIZE_SHORT_BYTES);
         if (modemCMDName == UCOS_CMD_TXDATA)
         {
             // Исключаем пакет синхронизации
-            if (frame.size() != lengthSynhr)
+            if (frame.size() != LEN_SYNHR)
             {
                 const char *pFrame;
                 Pkt_Hdr *PktData;
 
                 pFrame = frame.data();
-                pFrame += PSPDOffset;
+                pFrame += PSPD_OFFSET;
                 PktData = (Pkt_Hdr *)pFrame;
                 parseService(PktData, numFrame);
                 parseBeacon(PktData, numFrame);
@@ -174,7 +194,7 @@ void FileParser::parseService(Pkt_Hdr *PktData, int numFrame)
 
     type_Hdr = (Pkt_type_Hdr*)&(PktData->Data_type);
 
-    if(PktData->DestAddr == SOFT_ADDR_BRDCST)
+    if (PktData->DestAddr == SOFT_ADDR_BRDCST)
     {
         do //Piggy-back по PKTdata->pData_LenToNext - по разным типам пакетов внутри одного пакета с хедером
         {
@@ -207,25 +227,32 @@ void FileParser::parseService(Pkt_Hdr *PktData, int numFrame)
                 }
 
                 setCounter(PktData->SrcAddr, pktNumber, numFrame);
+                Counter_t *counter = getCounter(PktData->SrcAddr);
+
+                if (getMissedPkt(PktData->SrcAddr, pktNumber, counter->currentCycle) != nullptr)
+                {
+
+                    setRepeatedPkt(PktData->SrcAddr, pktNumber, numFrame);
+                }
             }
             type_Hdr = (Pkt_type_Hdr*) ( ((uint8_t*)(&(type_Hdr->LenToNext))) + sizeof(PKT_LENTONEXT_TYPE) + LenToNext_field );
         }
-        while(LenToNext_field != 0);
+        while (LenToNext_field != 0);
     }
 }
 
 void FileParser::parseBeacon(Pkt_Hdr *PktData, int beacFrameNum)
 {
-    if(PktData->DestAddr == SOFT_ADDR_BRDCST)
+    if (PktData->DestAddr == SOFT_ADDR_BRDCST)
     {
         // Смотрим пропуски пакетов
         if ( PktData->Data_type == PKT_TYPE_BEACON)
         {
             Pkt_Beacon *Beacon = (Pkt_Beacon *)&(PktData->Data_type);
 
-            for (int var = 0; var < MAX_RADIO_CONNECTIONS; ++var)
+            for (int var = 0; var < MAX_RADIO_CONNECTIONS; var++)
             {
-                counter_t *counter = getCounter(Beacon->AS[var].addr);
+                Counter_t *counter = getCounter(Beacon->AS[var].addr);
                 if (counter != nullptr)
                 {
                     // Не смотрим пропуски у источника бикона
@@ -236,11 +263,11 @@ void FileParser::parseBeacon(Pkt_Hdr *PktData, int beacFrameNum)
                                 || (get_VSV(Beacon->VSV, var) == VSV_RPSV)
                             )
                         {
-                            if (Beacon->last_heard_pkt_number[var] != counter->currentpktNumber)
+                            if (Beacon->last_heard_pkt_number[var] != counter->currentPktNumber)
                             {
                                 int pktNumber = Beacon->last_heard_pkt_number[var] + 1;
                                 int pktFrameNum = counter->matchPktToFrame[pktNumber];
-                                setMissedPkt(PktData->SrcAddr, counter->addr, pktNumber, beacFrameNum, pktFrameNum);
+                                setMissedPkt(PktData->SrcAddr, counter->addr, pktNumber, beacFrameNum, pktFrameNum, counter->currentCycle);
                             }
                         }
                     }
@@ -258,7 +285,7 @@ int FileParser::bytesToInt(const QByteArray &bytes, int first, int sizeInt)
     for (int i = 0; i < sizeInt; i++)
     {
         tmp = static_cast<uint8_t>(bytes.at(first+i));
-        result = result | (tmp << i*sizeByteBits);
+        result = result | (tmp << i*SIZE_BYTE_BITS);
     }
     return result;
 }

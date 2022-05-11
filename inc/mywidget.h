@@ -19,7 +19,7 @@ class MyWidget : public QMainWindow
     Q_OBJECT
 
 private:
-    enum TableColumns
+    enum class TableColumns_t
     {
         RX_COLUMN,
         TX_COLUMN,
@@ -29,13 +29,22 @@ private:
         COUNT_COLUMNS
     };
 
+    enum class Table2Columns_t
+    {
+        TX_COLUMN,
+        NUM_PKT_COLUMN,
+        NUM_FRAME_PKT_COLUMN,
+        COUNT_COLUMNS
+    };
+
 public:
     MyWidget(QWidget *parent = nullptr);
     ~MyWidget();
 
 public slots:
     void onClickedButton();
-    void onClickedHeader(int logicalIndex);
+    void onClickedTableHeader(int logicalIndex);
+    void onClickedTable2Header(int logicalIndex);
     void updateBar(uint64_t readBytes);
 
 private:
@@ -47,7 +56,8 @@ protected:
     virtual void dropEvent(QDropEvent *event) override;
 
 private:
-    void printMissedPkt(const QVector<FileParser::missedPkt_t> &missedPkts);
+    void printMissedPkts(const QVector<FileParser::MissedPkt_t> &missedPkts);
+    void printRepeatedPkts(const QVector<FileParser::RepeatedPkt_t> &repeatedPkts);
     void createMenus();
     void openFile(const QString &fileName);
     void clearTable();

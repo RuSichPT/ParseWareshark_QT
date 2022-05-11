@@ -15,7 +15,21 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="1" column="1">
+     <widget class="QPushButton" name="m_button">
+      <property name="text">
+       <string>Открыть</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QProgressBar" name="m_pBar">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="2">
      <widget class="QTabWidget" name="m_tabWidget">
       <property name="enabled">
        <bool>true</bool>
@@ -90,27 +104,41 @@
           </column>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QProgressBar" name="m_pBar">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="m_button">
-          <property name="text">
-           <string>Открыть</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="m_tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Анализ
+повторных пакетов</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3"/>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QTableWidget" name="m_table2">
+          <attribute name="verticalHeaderDefaultSectionSize">
+           <number>23</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Передатчик</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Номер
+повторного
+пакета</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Номер фрейма
+повторного
+пакета</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

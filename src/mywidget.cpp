@@ -21,8 +21,11 @@ MyWidget::MyWidget(QWidget *parent)
     m_file = new QFile(this);
     connect(ui->m_button, &QPushButton::clicked, this, &MyWidget::onClickedButton);
 
-    // Таблица
-    connect(ui->m_table->horizontalHeader(), &QHeaderView::sectionClicked, this, &MyWidget::onClickedHeader);
+    // Таблицы
+    connect(ui->m_table->horizontalHeader(), &QHeaderView::sectionClicked, this, &MyWidget::onClickedTableHeader);
+    connect(ui->m_table2->horizontalHeader(), &QHeaderView::sectionClicked, this, &MyWidget::onClickedTable2Header);
+    // Запрещаем изменения в таблице
+    ui->m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Иконка
     QIcon icon = QIcon(":/res/images/icon.ico");
@@ -88,8 +91,9 @@ void MyWidget::openFile(const QString &fileName)
     parser.readFile(*m_file);
     m_file->close();
 
-    // Рисуем пропущенные пакеты
-    printMissedPkt(parser.getMissedPkts());
+    // Рисуем пакеты
+    printMissedPkts(parser.getMissedPkts());
+    printRepeatedPkts(parser.getRepeatedPkts());
 }
 
 void MyWidget::onClickedButton()
@@ -107,11 +111,19 @@ void MyWidget::onClickedButton()
     openFile(fileName);
 }
 
-void MyWidget::onClickedHeader(int logicalIndex)
+void MyWidget::onClickedTableHeader(int logicalIndex)
 {
-    static int orders[COUNT_COLUMNS]{0};
+    static int orders[(int)TableColumns_t::COUNT_COLUMNS]{0};
     orders[logicalIndex] = !orders[logicalIndex];
     ui->m_table->sortByColumn(logicalIndex, (Qt::SortOrder) orders[logicalIndex]);
+    qDebug() << logicalIndex;
+}
+
+void MyWidget::onClickedTable2Header(int logicalIndex)
+{
+    static int orders[(int)Table2Columns_t::COUNT_COLUMNS]{0};
+    orders[logicalIndex] = !orders[logicalIndex];
+    ui->m_table2->sortByColumn(logicalIndex, (Qt::SortOrder) orders[logicalIndex]);
     qDebug() << logicalIndex;
 }
 
@@ -122,46 +134,68 @@ void MyWidget::updateBar(uint64_t readBytes)
     ui->m_pBar->setValue(progress);
 }
 
-void MyWidget::printMissedPkt(const QVector<FileParser::missedPkt_t> &missedPkts)
+void MyWidget::printMissedPkts(const QVector<FileParser::MissedPkt_t> &missedPkts)
 {
     if (!missedPkts.empty())
     {
         int row{0};
 
+        // Кол-во строк
+        ui->m_table->setRowCount(missedPkts.size());
+
         foreach (const auto &missedPkt, missedPkts)
         {
-            // Кол-во строк
-            ui->m_table->setRowCount(missedPkt.pktNumbers.size()+ui->m_table->rowCount());
+            // Создаем ячейки для таблицы
+            QTableWidgetItem *rxItem = new QTableWidgetItem(QString::number(missedPkt.destAddr));
+            QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(missedPkt.srcAddr));
+            QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(missedPkt.pktNumber));
+            QTableWidgetItem *pktFrameItem = new QTableWidgetItem(QString::number(missedPkt.pktFrameNumber));
+            QTableWidgetItem *beacNumbItem = new QTableWidgetItem(QString::number(missedPkt.beacFrameNumber));
 
-            foreach (const auto &pktNumbers, missedPkt.pktNumbers)
-            {
-                uint16_t addrfrom = pktNumbers.addrFrom;
-                uint8_t pktNumber = pktNumbers.pktNumber;
-                int pktFrameNumber = pktNumbers.pktFrameNumber;
-                int beacFrameNumber = pktNumbers.beacFrameNumber;
+            rxItem->setTextAlignment(Qt::AlignCenter);
+            txItem->setTextAlignment(Qt::AlignCenter);
+            ptkNumbItem->setTextAlignment(Qt::AlignCenter);
+            pktFrameItem->setTextAlignment(Qt::AlignCenter);
+            beacNumbItem->setTextAlignment(Qt::AlignCenter);
 
-                // Создаем ячейки для таблицы
-                QTableWidgetItem *rxItem = new QTableWidgetItem(QString::number(missedPkt.addr));
-                QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(addrfrom));
-                QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(pktNumber));
-                QTableWidgetItem *pktFrameItem = new QTableWidgetItem(QString::number(pktFrameNumber));
-                QTableWidgetItem *beacNumbItem = new QTableWidgetItem(QString::number(beacFrameNumber));
+            // Вставляем ячейки в таблицу
+            ui->m_table->setItem(row, (int)TableColumns_t::RX_COLUMN, rxItem);
+            ui->m_table->setItem(row, (int)TableColumns_t::TX_COLUMN, txItem);
+            ui->m_table->setItem(row, (int)TableColumns_t::NUM_PKT_COLUMN, ptkNumbItem);
+            ui->m_table->setItem(row, (int)TableColumns_t::NUM_FRAME_PKT_COLUMN, pktFrameItem);
+            ui->m_table->setItem(row, (int)TableColumns_t::NUM_FRAME_BEAC_COLUMN, beacNumbItem);
 
-                rxItem->setTextAlignment(Qt::AlignCenter);
-                txItem->setTextAlignment(Qt::AlignCenter);
-                ptkNumbItem->setTextAlignment(Qt::AlignCenter);
-                pktFrameItem->setTextAlignment(Qt::AlignCenter);
-                beacNumbItem->setTextAlignment(Qt::AlignCenter);
+            row++;
+        }
+    }
+}
 
-                // Вставляем ячейки в таблицу
-                ui->m_table->setItem(row, RX_COLUMN, rxItem);
-                ui->m_table->setItem(row, TX_COLUMN, txItem);
-                ui->m_table->setItem(row, NUM_PKT_COLUMN, ptkNumbItem);
-                ui->m_table->setItem(row, NUM_FRAME_PKT_COLUMN, pktFrameItem);
-                ui->m_table->setItem(row, NUM_FRAME_BEAC_COLUMN, beacNumbItem);
+void MyWidget::printRepeatedPkts(const QVector<FileParser::RepeatedPkt_t> &repeatedPkts)
+{
+    if (!repeatedPkts.empty())
+    {
+        int row{0};
 
-                row++;
-            }
+        // Кол-во строк
+        ui->m_table2->setRowCount(repeatedPkts.size());
+
+        for (const auto &repeatedPkt: repeatedPkts)
+        {
+            // Создаем ячейки для таблицы
+            QTableWidgetItem *txItem = new QTableWidgetItem(QString::number(repeatedPkt.srcAddr));
+            QTableWidgetItem *ptkNumbItem = new QTableWidgetItem(QString::number(repeatedPkt.pktNumber));
+            QTableWidgetItem *pktFrameItem = new QTableWidgetItem(QString::number(repeatedPkt.pktFrameNumber));
+
+            txItem->setTextAlignment(Qt::AlignCenter);
+            ptkNumbItem->setTextAlignment(Qt::AlignCenter);
+            pktFrameItem->setTextAlignment(Qt::AlignCenter);
+
+            // Вставляем ячейки в таблицу
+            ui->m_table2->setItem(row, (int)Table2Columns_t::TX_COLUMN, txItem);
+            ui->m_table2->setItem(row, (int)Table2Columns_t::NUM_PKT_COLUMN, ptkNumbItem);
+            ui->m_table2->setItem(row, (int)Table2Columns_t::NUM_FRAME_PKT_COLUMN, pktFrameItem);
+
+            row++;
         }
     }
 }
