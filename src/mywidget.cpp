@@ -104,7 +104,7 @@ void MyWidget::onClickedButton()
     QString dir = settings.value("path").toString();
 
     // Запускаем диалоговое окно выбора файла
-    QString fileName = QFileDialog::getOpenFileName(this, "Открыть файл", dir, "*pcap");
+    QString fileName = QFileDialog::getOpenFileName(this, "Открыть файл", dir, "*.pcap");
 
     // Устанавливаем значение в реестре
     settings.setValue("path", fileName);
