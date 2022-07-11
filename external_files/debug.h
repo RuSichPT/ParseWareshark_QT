@@ -76,13 +76,15 @@ typedef union
 #define MEMCPY                memcpy
 #endif
 
+extern void show_error(const char* function, int line); //#include "Periphery/display.h"
+
 #define ASM_NOP               asm("nop")
 #if defined (__GNUC__) && !defined (__OMNET__)
-#define ERROR_DEBUG_BKPT      asm("bkpt")
+#define ERROR_DEBUG_BKPT      show_error(__FUNCTION__, __LINE__);asm("bkpt")
 #elif defined (__OMNET__)
 
 #else
-#define ERROR_DEBUG_BKPT      asm("bkpt#0")
+#define ERROR_DEBUG_BKPT      show_error(__FUNCTION__, __LINE__);asm("bkpt#0")
 #endif
 
 #if defined (__OMNET__)        // OMNET Compiler

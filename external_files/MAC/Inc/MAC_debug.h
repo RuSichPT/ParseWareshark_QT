@@ -42,6 +42,7 @@
 #define ASM_NOP               asm("nop")
 
 #define ERROR_DEBUG_BKPT      printf("\n\n<!> RUNTIME ERROR: ERROR_DEBUG_BKPT:\n<!> %s\n<!> %s; line: %d\n<!> %s, addr = %d\n<!> time = %f\n", __FILE__, __FUNCTION__, __LINE__, ((uint8_t*)(&NodeName) + 16), mac.addr, (simTime().raw()) /1000000000000.0f ); fflush(stdout); DEBUG_TRAP // см дефайн DEBUG_TRAP в platmisc.h //asm("int $3\n")  // MinGW or Cygwin: debug interrupt with GNU syntax
+#define DEBUG_PRINTF(x)       printf("\nt: %f, addr = %d, %s: %d, %d", (simTime().raw()) /1000000000000.0f, mac.addr, __FUNCTION__, __LINE__, x); // макрос для отладки через консоль
 //FunctionWithBreakPoint()
 
 #define DEBUG_ASM_BKPT                  1
@@ -104,7 +105,7 @@ typedef struct
 #endif
 
 #define OMNET_SNR_DB_OFFSET             0 // сколько дБ прибавлять к уровню сигнала в симуляторе при передаче значения в SLEVEL
-#define BAD_RECEIVE_SNR                 (-120)
+#define BAD_RECEIVE_SNR                 (-255)//(-120)
 
 
 

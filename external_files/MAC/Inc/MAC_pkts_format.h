@@ -20,20 +20,20 @@ typedef enum SIZE_OF_ENUM_UINT8
 	PKT_TYPE_RTS				= 2,	// Brdcst
 	PKT_TYPE_CTS				= 3,	// Brdcst
 	PKT_TYPE_ACK				= 4,	// Brdcst
-	PKT_TYPE_FORCE_RTS          = 5,	// Brdcst
-	PKT_TYPE_FORCE_CTS          = 6,	// Brdcst
-	PKT_TYPE_NACK				= 7,	// Brdcst
-	PKT_TYPE_NACK_R				= 8,	// Brdcst // NACK Response
-	PKT_TYPE_VCH_READINESS		= 9,	// Brdcst
-	PKT_TYPE_DATA				= 10,	// Uncst
-	PKT_TYPE_DATA_TIMEMARKED	= 11,	// Uncst
-	PKT_TYPE_REQUEST			= 12,	// Uncst/Mltcst/Brdcst
-	PKT_TYPE_DATA_MAP			= 13,	// Brdcst
-	PKT_TYPE_DATA_MAP_REQUEST	= 14,	// Brdcst
-	PKT_TYPE_CONNECT_REQUEST	= 15,	// Brdcst
-	PKT_TYPE_TIME_CORRECTION	= 16,	// Brdcst
-	PKT_TYPE_RREQ				= 17,	// запрос на маршрут Brdcst
-	PKT_TYPE_RREP				= 18,	// ответ на запрос Uncst
+	PKT_TYPE_NACK				= 5,	// Brdcst
+	PKT_TYPE_NACK_R				= 6,	// Brdcst // NACK Response
+	PKT_TYPE_VCH_READINESS		= 7,	// Brdcst
+	PKT_TYPE_DATA				= 8,	// Uncst
+	PKT_TYPE_DATA_TIMEMARKED	= 9,	// Uncst
+	PKT_TYPE_REQUEST			= 10,	// Uncst/Mltcst/Brdcst
+	PKT_TYPE_DATA_MAP			= 11,	// Brdcst
+	PKT_TYPE_DATA_MAP_REQUEST	= 12,	// Brdcst
+	PKT_TYPE_CONNECT_REQUEST	= 13,	// Brdcst
+	PKT_TYPE_TIME_CORRECTION	= 14,	// Brdcst
+	PKT_TYPE_RREQ				= 15,	// запрос на маршрут Brdcst
+	PKT_TYPE_RREP				= 16,	// ответ на запрос Uncst
+	PKT_TYPE_RREQ_MAC_IP		= 17,	// RREQ c mac ip
+	PKT_TYPE_RREP_MAC_IP		= 18,	// RREP c mac ip
 	PKT_TYPE_RERR				= 19,	// ошибка маршрута Uncst/Brdcst
 	PKT_TYPE_MAC_IP_REQ			= 20,	// запрос mac ip
 	PKT_TYPE_MAC_IP_REP			= 21,	// ответ mac ip
@@ -79,8 +79,7 @@ typedef enum SIZE_OF_ENUM_UINT8
 	REASON_TRAFF_END 		= 0,
 	REASON_ERROR_RESERVING	= 1,
 	REASON_REDUCING			= 2,
-//	REASON_NOT_EXISTS		= 3, // todo потом убрать REASON_NOT_EXISTS
-	REASON_TRAFF_END_REP	= 4,
+	REASON_TRAFF_END_REP	= 3,
 } PACKED ClosingReason_t;
 
 typedef enum SIZE_OF_ENUM_UINT8
@@ -365,7 +364,7 @@ typedef struct
 	RequestType 			request_code;	// код запроса
 } Pkt_Request;
 
-// *** RREQ/RREP/RERR/MAC_IP_REQUEST ***
+// ************ Routing ************
 typedef struct
 {
 	PKT_TYPE_TYPE			Type;
@@ -380,8 +379,9 @@ typedef struct
 	uint32_t				rreq_id;
 	uint16_t				dest_sta_addr;
 	uint32_t				dest_seq_num;
-	uint16_t				orig_sta_addr;
-	uint32_t				orig_seq_num;
+	uint16_t				src_sta_addr;
+	uint32_t				src_seq_num;
+	int8_t					src_min_snr;
 } Pkt_RREQ;
 
 typedef struct
@@ -395,9 +395,23 @@ typedef struct
 	uint8_t					hop_count;
 	uint16_t				dest_sta_addr;
 	uint32_t				dest_seq_num;
-	uint16_t				orig_sta_addr;
-	uint32_t				lifeTime;
+	int8_t					dest_min_snr;
+	uint16_t				src_sta_addr;
 } Pkt_RREP;
+
+typedef struct
+{
+	Pkt_RREQ				rreq_pkt;
+	eth_addr				src_mac_addr;
+	uint32_t				src_ip_addr;
+} Pkt_RREQ_mac_ip;
+
+typedef struct
+{
+	Pkt_RREP				rrep_pkt;
+	eth_addr				dest_mac_addr;
+	uint32_t				dest_ip_addr;
+} Pkt_RREP_mac_ip;
 
 #pragma pack(push, 1)
 typedef enum
@@ -405,6 +419,7 @@ typedef enum
 	INVALID			,
 	VALID			,
 } PACKED Valid_flag_t;
+
 typedef struct
 {
 	uint16_t				sta_addr;
@@ -417,7 +432,7 @@ typedef struct
 {
 	PKT_TYPE_TYPE			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
-	uint8_t					dest_count;
+	uint8_t					node_count;
 	uint8_t 				no_delete				:1;
 	uint8_t					reserved				:7;
 	Unreachable_node_t		unreachable_nodes[];
@@ -453,6 +468,21 @@ typedef struct
 
 typedef struct
 {
+	uint16_t				sta;
+	uint32_t				ip;
+	eth_addr				mac;
+} Net_addr_t;
+
+typedef struct
+{
+	PKT_TYPE_TYPE			Type;
+	PKT_LENTONEXT_TYPE		LenToNext;
+	uint8_t					size;
+	Net_addr_t				net_addr[];
+} Pkt_net_map_eth;
+
+typedef struct
+{
 	PKT_TYPE_TYPE 			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
 	uint16_t 				src_addr;				// адрес инициатора обмена
@@ -462,6 +492,8 @@ typedef struct
 	uint16_t 				br_dest_addr;			// адрес принимающего узла участка ВК
 	uint16_t 				br_src_addr;			// адрес передающего узла участка ВК
 } Pkt_Vch_Readiness;
+
+// ************ Routing ************
 
 #pragma pack(pop)
 
