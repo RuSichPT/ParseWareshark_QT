@@ -110,7 +110,7 @@ typedef struct
 
 
 #if DEBUG_TASK_MNGR
-extern uint8_t LastTaskID;
+extern ubase_t LastTaskID;
 #endif
 
 #else //DEBUG
@@ -217,13 +217,13 @@ void debug_MODEM_RX_DEBUG(uint8_t *pdat, uint16_t len);
 
 void Debug_Str_Send(uint8_t *buf, uint16_t len, Debug_commands_enum en_cmd);
 
-char* outputState(uint8_t state);
+char* outputState(ubase_t state);
 
 uint16_t gen_reserv_enties_state(void *_iter_elem, uint8_t *pdata);
 
 void output_virt_ch_list_in_parsing(void *_type_Hdr);
 
-void output_virt_ch_list_uart(void **_virt_ch, U8_T num_vch);
+void output_virt_ch_list_uart(void **_virt_ch, ubase_t num_vch);
 
 uint16_t write_virt_ch_to_pbuff(uint8_t *pdata, void *_virt_ch);
 

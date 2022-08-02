@@ -39,8 +39,8 @@
 #define SYSTEM_POINTER_SZ		unsigned
 #define SIZE_T					SYSTEM_POINTER_SZ
 
-#define U8_T					uint8_t //на случай если нужно все переменные не критиные к размеру заменить на другой тип
-#define S8_T					int8_t //на случай если нужно все переменные не критиные к размеру заменить на другой тип
+#define ubase_t				uint32_t //на случай если нужно все переменные не критиные к размеру заменить на другой тип
+#define base_t				int32_t //на случай если нужно все переменные не критиные к размеру заменить на другой тип
 
 #if defined (__ICCARM__) || defined (__ATOLLIC__)      // IAR Compiler
 #define NULL					((void *)0)

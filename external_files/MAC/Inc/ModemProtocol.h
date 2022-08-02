@@ -138,6 +138,9 @@ typedef enum SIZE_OF_ENUM_UINT32
 #define MIN_POWER		UCOS_KSS_POWER_LOW
 #define MAX_POWER		UCOS_KSS_POWER_NORM
 
+#define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
+#define MODEM_SLOT_DELAY                            2 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
+
 #elif defined(MODEM_CC1101)
 #define PREAMBLE_BYTES			12
 #define SYNCWORD_BYTES			4
@@ -170,6 +173,9 @@ typedef enum SIZE_OF_ENUM_UINT32
 #define SPEED_THR_TO_ALLOW_FRQ	(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
 
 //#define GET_LEN_MAX_SPD(slots)			GetLen_PRD2((slots)*US_IN_IPS*PP_FRQ_PER_SLOT)
+
+#define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
+#define MODEM_SLOT_DELAY                            0 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
 
 #elif defined(MODEM_CC1312)
 #define PREAMBLE_BYTES					4
@@ -238,6 +244,24 @@ typedef enum SIZE_OF_ENUM_UINT32
 
 #define MIN_POWER_IDX		UCOS_POWER_m11dbm
 #define MAX_POWER_IDX		UCOS_POWER_13dbm
+
+#define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
+#define MODEM_SLOT_DELAY                            0 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
+
+#if defined (__OMNET__)       // __OMNET__ Compiler
+#define MODEM_SYNCHR_SD_DELAY                       (MODEM_SYNCHR_DELAY)//x100nsec // время, которое выдает модем для пакета UCOS_KSS_TYPE_SINHR если нет временной задержки
+#define MODEM_CON_REQ_SD_DELAY                      (14900 - MODEM_TIME_PROTECT_SLOT_INTERV)//x100nsec // время, которое выдает модем для пакета UCOS_KSS_TYPE_TIME_MEAS если нет временной задержки
+
+#define MODEM_SYNCHR_TIME_CORRECTION_ERROR			(-396) 	//x100nsec //величина подобрана так, чтобы при приёме синхра вычисленное значение задержки совпадало с временем распространения сигнала в канале
+#define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(655) 	//x100nsec //величина подобрана так, чтобы при приёме запроса на подключение вычисленное значение задержки совпадало с временем распространения сигнала в канале
+#define MODEM_SYNCHR_DELAY_DEVIATION 				(-103)//(137) // (PRECISION_US_TO_NS учтена) в OMNET передача пакета синхр-ции занимает на столько мкс больше (т.к. chanel_len вычисляется с точностью до байта в SENDING)
+#else
+#define MODEM_SYNCHR_SD_DELAY                       (942*PRECISION_US_TO_NS) // время, которое выдает модем для пакета UCOS_KSS_TYPE_SINHR если нет временной задержки
+#define MODEM_CON_REQ_SD_DELAY                      (942*PRECISION_US_TO_NS) // время, которое выдает модем для пакета UCOS_KSS_TYPE_TIME_MEAS если нет временной задержки
+
+#define MODEM_SYNCHR_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
+#define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
+#endif//#if defined (__OMNET__)       // __OMNET__ Compiler
 
 #else
 #error
@@ -534,20 +558,20 @@ ModemRate_t calc_rate_down_for_snr(int16_t snr_val);
 
 ModemRate_t calc_rate_up_for_snr(int16_t snr_val);
 
-U8_T calc_pwr_idx_from_snr(U8_T curr_pwr_idx, int16_t snr, ModemRate_t speed);
+ubase_t calc_pwr_idx_from_snr(ubase_t curr_pwr_idx, int16_t snr, ModemRate_t speed);
 
-int16_t power_idx_to_dbm(U8_T pwr_idx);
+int16_t power_idx_to_dbm(ubase_t pwr_idx);
 
 //uint16_t calc_tc_size_for_rate(ModemRate_t rate);
 //
 //uint16_t calc_slots_to_TX(uint16_t Len, ModemRate_t rate, Modem_FSET_Command_TypeDef *Modem_FSET_Command);
 //
-//U8_T calc_slots_good_FEC_block(uint16_t Len, ModemRate_t rate);
+//ubase_t calc_slots_good_FEC_block(uint16_t Len, ModemRate_t rate);
 //
 //void Modem_Proc_FSET_Status(Pkt_fset_status_t *FSET_status);
 
 #if defined (__TI_CCS__)      // TI CCS Compiler
-void Modem_SendCommand_FSET(Modem_FSET_Command_TypeDef *FSETcommand); //,U8_T superslot_num);
+void Modem_SendCommand_FSET(Modem_FSET_Command_TypeDef *FSETcommand); //,ubase_t superslot_num);
 
 void Modem_SendCommand_TXDATA(Modem_TXDATA_Command_TypeDef *TXDATACommand);
 

@@ -80,6 +80,7 @@ typedef enum SIZE_OF_ENUM_UINT8
 	REASON_ERROR_RESERVING	= 1,
 	REASON_REDUCING			= 2,
 	REASON_TRAFF_END_REP	= 3,
+	REASON_ROUTE_CHANGE		= 4,
 } PACKED ClosingReason_t;
 
 typedef enum SIZE_OF_ENUM_UINT8
@@ -285,8 +286,9 @@ typedef struct
 	uint16_t				HostAddr;
 	uint8_t					BeaconInterval;
 } Pkt_ConnectRequest;
-
 #pragma pack(pop)
+
+#define PKT_CON_REQ_LEN sizeof(Pkt_ConnectRequest)
 
 
 // *** RTS/CTS/ACK/NACK ***
@@ -315,14 +317,14 @@ typedef enum SIZE_OF_ENUM_UINT8
 
 typedef struct
 {
-	uint8_t 				num_tr_blocks;	// кол-во транспортных блоков // если кол-во ТБ равно 0, значит ЗоР пустая
-	uint8_t 				offset;			// смещение
+	uint8_t					num_tr_blocks;	// кол-во транспортных блоков // если кол-во ТБ равно 0, значит ЗоР пустая
+	uint8_t					offset;			// смещение
 
-	uint8_t 				freq_ch			:4; // частотный канал
+	uint8_t					freq_ch			:4; // частотный канал
 	TraffDirectionType		direction		:2; // направление (00-Резерв, 01-Прм, 02-Прд, 03-дуплекс )
 	Reserv_elem_type_t		type			:2;	// тип ЗоР: текущая, планируемая, вспомогательная (+) или (-)
 
-	uint8_t 				rate			:2; // скорость (0,1,2...)
+	uint8_t					rate			:2; // скорость (0,1,2...)
 	uint8_t					reserved		:6;
 } Reservation_entry_t;
 
@@ -354,6 +356,30 @@ typedef struct
 {
 	PKT_TYPE_TYPE			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
+	uint16_t				dest_addr;		// адрес конечного абонента
+	uint16_t				src_addr;		// адрес инициатора обмена
+	uint8_t					virt_ch_num;	// номер виртуального канала
+	uint16_t				br_dest_addr;	// адрес принимающего узла участка ВК
+	uint16_t				br_src_addr;	// адрес передающего узла участка ВК
+	uint8_t					pkt_number;		// порядковый номер пакета
+} Pkt_Data_Map_Req_t;
+
+typedef struct
+{
+	PKT_TYPE_TYPE 			Type;
+	PKT_LENTONEXT_TYPE		LenToNext;
+	uint16_t 				src_addr;				// адрес инициатора обмена
+	uint8_t					virt_ch_num;			// номер виртуального канала
+	uint8_t					ready			: 4;	// 1 - участок ВК готов, 0 - участок ВК не готов
+	uint8_t					response		: 4;	// 1 - на это сообщ-е отвечать не нужно
+	uint16_t				br_dest_addr;			// адрес принимающего узла участка ВК
+	uint16_t				br_src_addr;			// адрес передающего узла участка ВК
+} Pkt_Vch_Readiness;
+
+typedef struct
+{
+	PKT_TYPE_TYPE			Type;
+	PKT_LENTONEXT_TYPE		LenToNext;
 	uint8_t					pkt_number;		// порядковый номер пакета
 } Pkt_control_number;
 
@@ -361,7 +387,7 @@ typedef struct
 {
 	PKT_TYPE_TYPE			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
-	RequestType 			request_code;	// код запроса
+	RequestType				request_code;	// код запроса
 } Pkt_Request;
 
 // ************ Routing ************
@@ -382,6 +408,7 @@ typedef struct
 	uint16_t				src_sta_addr;
 	uint32_t				src_seq_num;
 	int8_t					src_min_snr;
+	uint16_t				rebroadcast_addr;
 } Pkt_RREQ;
 
 typedef struct
@@ -480,18 +507,6 @@ typedef struct
 	uint8_t					size;
 	Net_addr_t				net_addr[];
 } Pkt_net_map_eth;
-
-typedef struct
-{
-	PKT_TYPE_TYPE 			Type;
-	PKT_LENTONEXT_TYPE		LenToNext;
-	uint16_t 				src_addr;				// адрес инициатора обмена
-	uint8_t					virt_ch_num;			// номер виртуального канала
-	uint8_t					ready			: 4;	// 1 - участок ВК готов, 0 - участок ВК не готов
-	uint8_t					response		: 4;	// 1 - на это сообщ-е отвечать не нужно
-	uint16_t 				br_dest_addr;			// адрес принимающего узла участка ВК
-	uint16_t 				br_src_addr;			// адрес передающего узла участка ВК
-} Pkt_Vch_Readiness;
 
 // ************ Routing ************
 
