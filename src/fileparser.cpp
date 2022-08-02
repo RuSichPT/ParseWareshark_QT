@@ -218,7 +218,7 @@ void FileParser::parseService(Pkt_Hdr *PktData, int numFrame)
                     Pkt_control_number *controlPkt = (Pkt_control_number *)(type_Hdr);
                     pktNumber = controlPkt->pkt_number;
                 }
-                if (type_Hdr->Type == PKT_TYPE_DATA_MAP_REQUEST)
+                else if (type_Hdr->Type == PKT_TYPE_DATA_MAP_REQUEST)
                 {
                     Pkt_Data_Map_Req_t *dm_req_pkt = (Pkt_Data_Map_Req_t *)type_Hdr;
                     pktNumber = dm_req_pkt->pkt_number;
