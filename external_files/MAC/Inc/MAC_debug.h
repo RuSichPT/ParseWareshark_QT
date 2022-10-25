@@ -41,8 +41,8 @@
 #elif defined (__OMNET__)        // OMNET Compiler
 #define ASM_NOP               asm("nop")
 
-#define ERROR_DEBUG_BKPT      printf("\n\n<!> RUNTIME ERROR: ERROR_DEBUG_BKPT:\n<!> %s\n<!> %s; line: %d\n<!> %s, addr = %d\n<!> time = %f\n", __FILE__, __FUNCTION__, __LINE__, ((uint8_t*)(&NodeName) + 16), mac.addr, (simTime().raw()) /1000000000000.0f ); fflush(stdout); DEBUG_TRAP // см дефайн DEBUG_TRAP в platmisc.h //asm("int $3\n")  // MinGW or Cygwin: debug interrupt with GNU syntax
-#define DEBUG_PRINTF(x)       printf("\nt: %f, addr = %d, %s: %d, %d", (simTime().raw()) /1000000000000.0f, mac.addr, __FUNCTION__, __LINE__, x); // макрос для отладки через консоль
+#define ERROR_DEBUG_BKPT      printf("\n\n<!> RUNTIME ERROR: ERROR_DEBUG_BKPT:\n<!> %s\n<!> %s; line: %d\n<!> %s, addr = %d\n<!> time = %f\n", __FILE__, __FUNCTION__, __LINE__, ((uint8_t*)(&NodeName) + 16), mac.own.addr, (simTime().raw()) /1000000000000.0f ); fflush(stdout); DEBUG_TRAP // см дефайн DEBUG_TRAP в platmisc.h //asm("int $3\n")  // MinGW or Cygwin: debug interrupt with GNU syntax
+#define DEBUG_PRINTF(x)       printf("\nt: %f, addr = %d, %s: %d, %d", (simTime().raw()) /1000000000000.0f, mac.own.addr, __FUNCTION__, __LINE__, x); // макрос для отладки через консоль
 //FunctionWithBreakPoint()
 
 #define DEBUG_ASM_BKPT                  1
@@ -185,6 +185,8 @@ int16_t Pow_to_Snr(double pwr);
 
 char* output_pkt_type(PktType type);
 
+char* output_vsv_type(VSV_t type);
+
 char* output_traffic_direction(TraffDirectionType dir);
 
 char* output_traffic_type(Traff_Type_t type);
@@ -193,7 +195,7 @@ char* output_virt_ch_function(Virt_ch_func_t func);
 
 char* output_task_operation(Task_Operation_t operation);
 
-char* output_virt_ch_state(Vch_Ready_Func_t state);
+char* output_bridge_state(Vch_Ready_Func_t state);
 
 void output_reserv_enties(Reserv_elem_t *head_elem);
 
@@ -203,7 +205,7 @@ void outputStatusInfo();
 
 void outputAddressTables();
 
-void print_bcn_distr(uint8_t *distr);
+void print_bcn_distr(int8_t *distr);
 
 void output_freqs();
 

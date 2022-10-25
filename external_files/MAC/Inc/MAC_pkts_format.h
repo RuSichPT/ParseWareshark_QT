@@ -10,6 +10,10 @@
 #include "external_files/MAC/Inc/MAC_Timers.h"			// Net_time_t
 #include "external_files/eth.h"						// eth_addr
 
+#define USE_CRC_FOR_WHOLE_PKT	1	//Если DATA пакет фрагментируется, добавляем в его конец crc для контроля дефрагментации
+#if USE_CRC_FOR_WHOLE_PKT
+	#define WHOLE_PKT_CRC_TYPE	uint16_t
+#endif//#if USE_CRC_FOR_WHOLE_PKT
 
 #define SOFT_ADDR_BRDCST        (0xFFFFu)
 #define SOFT_ADDR_EMPTY         0
@@ -29,16 +33,19 @@ typedef enum SIZE_OF_ENUM_UINT8
 	PKT_TYPE_DATA_MAP			= 11,	// Brdcst
 	PKT_TYPE_DATA_MAP_REQUEST	= 12,	// Brdcst
 	PKT_TYPE_CONNECT_REQUEST	= 13,	// Brdcst
-	PKT_TYPE_TIME_CORRECTION	= 14,	// Brdcst
-	PKT_TYPE_RREQ				= 15,	// запрос на маршрут Brdcst
-	PKT_TYPE_RREP				= 16,	// ответ на запрос Uncst
-	PKT_TYPE_RREQ_MAC_IP		= 17,	// RREQ c mac ip
-	PKT_TYPE_RREP_MAC_IP		= 18,	// RREP c mac ip
-	PKT_TYPE_RERR				= 19,	// ошибка маршрута Uncst/Brdcst
-	PKT_TYPE_MAC_IP_REQ			= 20,	// запрос mac ip
-	PKT_TYPE_MAC_IP_REP			= 21,	// ответ mac ip
-	PKT_TYPE_NET_MAP			= 22,	// список сетевых адресов
-	PKT_TYPE_CONTROL_NUMBER		= 23,	// пакет только с номером пакета для контроля пакетов
+	PKT_TYPE_NOTICE				= 14,	// Brdcst
+	PKT_TYPE_TIME_CORRECTION	= 15,	// Brdcst
+	PKT_TYPE_RREQ				= 16,	// запрос на маршрут Brdcst
+	PKT_TYPE_RREP				= 17,	// ответ на запрос Uncst
+	PKT_TYPE_GREP				= 18,	// GREP
+	PKT_TYPE_RREQ_MAC_IP		= 19,	// RREQ c mac ip
+	PKT_TYPE_RREP_MAC_IP		= 20,	// RREP c mac ip
+	PKT_TYPE_GREP_MAC_IP		= 21,	// GREP c mac ip
+	PKT_TYPE_RERR				= 22,	// ошибка маршрута Uncst/Brdcst
+	PKT_TYPE_MAC_IP_REQ			= 23,	// запрос mac ip
+	PKT_TYPE_MAC_IP_REP			= 24,	// ответ mac ip
+	PKT_TYPE_NET_MAP			= 25,	// список сетевых адресов
+	PKT_TYPE_CONTROL_NUMBER		= 26,	// пакет только с номером пакета для контроля пакетов
 
 //	PKT_TYPE_DATA_LITE          = 6,    // Uncst/Mltcst/Brdcst
 
@@ -80,7 +87,6 @@ typedef enum SIZE_OF_ENUM_UINT8
 	REASON_ERROR_RESERVING	= 1,
 	REASON_REDUCING			= 2,
 	REASON_TRAFF_END_REP	= 3,
-	REASON_ROUTE_CHANGE		= 4,
 } PACKED ClosingReason_t;
 
 typedef enum SIZE_OF_ENUM_UINT8
@@ -264,7 +270,11 @@ typedef union
 typedef struct
 {
 	uint16_t				FreqSetNum	:10;	//Номер комплекта частот (номер частоты) - используется модемом для отсеивания пакетов синхронизации
+#if defined(MODEM_PANZYR_SM)
 	uint16_t				vks			:1;		// Номер сети (ВКС1/ВКС2) - используется модемом для отсеивания пакетов синхронизации
+#else
+	uint16_t				reserv_		:1;
+#endif
 	uint16_t				CycleOffset	:4;		//сколько циклов назад генерировалась последовательность частот для пакетов синхронизации
 	uint16_t				reserv		:1;
 	PKT_ADDR_TYPE			SA;					//source addr
@@ -283,8 +293,8 @@ typedef struct
 {
 	PKT_TYPE_TYPE			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
-	uint16_t				HostAddr;
-	uint8_t					BeaconInterval;
+	uint16_t				host_addr;
+	uint8_t					beacon_interval;
 } Pkt_ConnectRequest;
 #pragma pack(pop)
 
@@ -368,6 +378,7 @@ typedef struct
 {
 	PKT_TYPE_TYPE 			Type;
 	PKT_LENTONEXT_TYPE		LenToNext;
+	uint16_t				dest_addr;				// адрес конечного абонента
 	uint16_t 				src_addr;				// адрес инициатора обмена
 	uint8_t					virt_ch_num;			// номер виртуального канала
 	uint8_t					ready			: 4;	// 1 - участок ВК готов, 0 - участок ВК не готов
@@ -525,8 +536,8 @@ typedef enum SIZE_OF_ENUM_UINT8
 
 typedef struct
 {
-	uint8_t					Num	:4; //номер фрагмента внутри пакета
-	uint8_t					Pkt	:2; //номер текущего пакета, меняется только при фрагментировании, используется для идентификации того, что текущий принятый фрагмент это продолжение предыдущего пакета, а не какойто фрагмент уже нового пакета
+	uint8_t					Num	:3; //номер фрагмента внутри пакета
+	uint8_t					Pkt	:3; //номер текущего пакета, меняется только при фрагментировании, используется для идентификации того, что текущий принятый фрагмент это продолжение предыдущего пакета, а не какойто фрагмент уже нового пакета
 	FragmentEnd				End	:2; //признак того, что фрагмент последний
 } FragmentType;
 

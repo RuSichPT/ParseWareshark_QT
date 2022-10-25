@@ -18,9 +18,24 @@
 
 #define US_IN_IPS                                   (500)
 
+#if defined(MODEM_SBS)
+#define TX_RESERV_SLOTS								(2) // сколько нужно ИПС, в которых нельзя ничего делать, после приема пакета синхронизации, чтобы поддернуть времянку
+
+#elif defined(MODEM_PANZYR_SM)
+#define TX_RESERV_SLOTS								(2) // сколько нужно ИПС, в которых нельзя ничего делать, после приема пакета синхронизации, чтобы поддернуть времянку
+
+#elif defined(MODEM_CC1312)
+//для сс1312 нужно чтобы в следущем после приёма синхра ИПСе не было команд.
+//т.к. команда идет по UART1, генерит прерывание, у которого приоритет выше калбэка на выдачу данных по синхру, и прерывание затягивает выдачу данных по синхру и сбивает времянку
+//теоретически можно командой уехать влево от ИПСа, идущего после приёма синхра
+#define TX_RESERV_SLOTS								(MODEM_SLOTS_FOR_SEND_COMMAND+1) // сколько нужно ИПС, в которых нельзя ничего делать, после приема пакета синхронизации, чтобы поддернуть времянку
+
+#else
+#error
+#endif// defined(MODEM_CC1312)
+
 #define MIN_SIZE_DATA_BYTES							(PKT_DATA_WITH_HDR_SZ + 42)// 57, минимальный размер передаваемого без резервирования пакета (ARP)
 
-#define TX_RESERV_SLOTS								(4) // сколько нужно ИПС, в которых нельзя ничего делать, после приема пакета синхронизации, чтобы поддернуть времянку
 #define NUM_IVA           			                (2) // сколько нужно интервалов ввода абонентов
 #define NUM_PRIOR_TX_INTERVAL						(3) // сколько приоритетных слотов со служебкой// in MIN_SIZE_DATA_BLOCK
 
@@ -74,7 +89,7 @@
 
 //SYNCHR
 #define TX_SYNCHR_SLOT                       		(0)
-#define SLOTS_PER_SYNCHR							GetNumSlots_PRD1(PKT_SYNCHR_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)//3
+#define SLOTS_PER_SYNCHR							GET_SLOTS_MIN_SPEED_SYNC(PKT_SYNCHR_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)//3
 #define SLOTS_PER_RX_SYN_PRECONN                    (SLOTS_PER_SYNCHR)//3
 #define SLOTS_PER_RX_SYN_SEARCH                     MAX_SLOTS_PER_DATA_TX//SLOTS_PER_WORK_PERIOD
 #define SLOTS_PER_RX_SYN_IN_DATA_SLOTS              ( ( SLOTS_PER_ALL_TX_INTERVAL > MAX_SLOTS_PER_DATA_TX) ? MAX_SLOTS_PER_DATA_TX : SLOTS_PER_ALL_TX_INTERVAL )
@@ -85,8 +100,8 @@
 
 
 //BEACON / IVA / PRIOR_TX_INTERVAL
-#define SLOTS_PER_BEACON							GetNumSlots_PRD1(PKT_HDR_LEN + PKT_BEACON_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)//6
-#define SLOTS_PER_IVA								GetNumSlots_PRD1(PKT_HDR_LEN + PKT_CON_REQ_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)//3
+#define SLOTS_PER_BEACON							GET_SLOTS_MIN_SPEED(PKT_HDR_LEN + PKT_BEACON_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)//6
+#define SLOTS_PER_IVA								GET_SLOTS_MIN_SPEED(PKT_HDR_LEN + PKT_CON_REQ_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)//3
 
 #ifdef ORDER_BEACON_IVA
 #define TX_BEACON_SLOT                       		(TX_RESERV_SLOT + TX_RESERV_SLOTS)
@@ -116,7 +131,7 @@
 #define COMMON_SERVICE_DISTR_SLOT_I(i, c_size)		((COMMON_SERVICE_DISTR_SLOT + (i) * SLOTS_PER_COMMON_TX_INTERVAL(c_size)) % SLOTS_PER_WORK_PERIOD)
 
 // размеры событий в блоках
-#define MIN_SIZE_DATA_BLOCK							GetNumSlots_PRD1(MIN_SIZE_DATA_BYTES, US_IN_IPS * PP_FRQ_PER_SLOT)//(6)
+#define MIN_SIZE_DATA_BLOCK							GET_SLOTS_MIN_SPEED(MIN_SIZE_DATA_BYTES, US_IN_IPS * PP_FRQ_PER_SLOT)//(6)
 #define SLOTS_PER_ALL_TX_INTERVAL  					(SLOTS_PER_WORK_PERIOD - PRIOR_TX_INTERVAL_SLOT)
 
 // интервалы передачи (ПИП и ОИП)
@@ -164,7 +179,7 @@
 
 //#if (BEACON_TX_SPEED == UCOS_KSS_RATE_PRD1)
 //
-//#define SLOTS_PER_BEACON							GetNumSlots_PRD1(PKT_HDR_LEN + PKT_BEACON_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)
+//#define SLOTS_PER_BEACON							GET_SLOTS_MIN_SPEED(PKT_HDR_LEN + PKT_BEACON_LEN, US_IN_IPS * PP_FRQ_PER_SLOT)
 //
 //#elif (BEACON_TX_SPEED == UCOS_KSS_RATE_PRD2)
 //

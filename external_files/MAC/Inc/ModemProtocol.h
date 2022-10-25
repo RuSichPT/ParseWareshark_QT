@@ -5,98 +5,30 @@
 #define __MODEMPROTOCOL_H
 
 #include "external_files/MAC/Inc/MAC_debug.h"
-#include "external_files/MAC/Inc/MAC_Timeline.h"
 
+//#define MODEM_SBS
 //#define MODEM_PANZYR_SM
 //#define MODEM_CC1101
 #define MODEM_CC1312
 
+#if defined(MODEM_SBS)
 
-#if defined(MODEM_PANZYR_SM)
-#define MODEM_LEN_OLD           (60*8)
+#define GetLen_PRD1_SYNC(time_us)					((uint32_t)((((time_us) == 2000)*14) +  (((time_us) != 2000)* ((((time_us)*(0.045)) - 15) / 6.0)  )))
+#define GetLen_PRD1(time_us)						((uint32_t)(((((time_us) - 16)*(0.04496875)) - 35) / 6.0) )
+#define GetLen_PRD2(time_us)						((uint32_t)(((((time_us) - 16)*(0.04496875)) - 26) / 3.0) )
+#define GetLen_PRD3(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (2/3.0)) )
+#define GetLen_PRD4(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (4/3.0)) )
+#define GetLen_PRD5(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (8/3.0)) )
+#define GetLen_PRD6(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (16/3.0)) )
 
-#define MODEM_LEN_D_500_ONE     324
-#define MODEM_LEN_D_500_FIRST   324
-#define MODEM_LEN_D_500_MIDLE   360
-#define MODEM_LEN_D_500_LAST    324
+#define GET_MIN_SPEED_LEN(slots)					GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
+#define GET_SLOTS_MIN_SPEED							GetNumSlots_PRD1
+#define GET_SLOTS_MIN_SPEED_SYNC					GetNumSlots_PRD1_SYNC
 
-#define MODEM_LEN_D_2000_ONE    216
-#define MODEM_LEN_D_2000_FIRST  270
-#define MODEM_LEN_D_2000_MIDLE  360
-#define MODEM_LEN_D_2000_LAST   306
+#define GetNumSlots_PRD1_SYNC(len, t_inr) 			(uint32_t)(((len<=14)*1) + ((len>14)*(((((((len)*6) + 15) / 0.045) / ((t_inr) * 1.0))) + 1)))
+#define GetNumSlots_PRD1(len, t_inr) 				(uint32_t)(((((((len)*6) + 35) / 0.04496875) + 16) / ((t_inr) * 1.0)) + 1)
 
-#define MODEM_LEN_N_500_ONE     648
-#define MODEM_LEN_N_500_FIRST   648
-#define MODEM_LEN_N_500_MIDLE   720
-#define MODEM_LEN_N_500_LAST    648
-
-#define MODEM_LEN_N_2000_ONE    504
-#define MODEM_LEN_N_2000_FIRST  612
-#define MODEM_LEN_N_2000_MIDLE  720
-#define MODEM_LEN_N_2000_LAST   612
-
-#define MODEM_TO_CODE_RATE_1_3(x)     ((x)/3)
-#define MODEM_TO_CODE_RATE_2_3(x)     (((x)*2)/3)
-#define BITS_TO_BYTES(x)              ((x)/8)
-
-#define MODEM_BPSK              1
-#define MODEM_QAM_4             2
-#define MODEM_QAM_16            4
-
-#define GET_LEN_PRD5(Slots)     (  BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 *  MODEM_LEN_N_2000_FIRST ))               \
-                                 + BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 *  MODEM_LEN_N_2000_LAST  ))               \
-                                 + BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 * (MODEM_LEN_N_2000_MIDLE * ((Slots)-2)) ))  \
-                                )
-
-#define GET_LEN_PRD1_SYN_ONE    ( 1 + BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_500_ONE )) )
-
-#define GET_LEN_PRD1_ONE        ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_2000_ONE )) )
-
-#define GET_LEN_PRD2_ONE        ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_N_2000_ONE )) )
-
-#define GET_LEN_PRD3_ONE        ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_ONE )) )
-
-#define GET_LEN_PRD4_ONE        ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_ONE )) )
-
-#define GET_LEN_PRD5_ONE        (  BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 *  MODEM_LEN_N_2000_ONE )) )
-
-#define GET_LEN_PRD1_SYN_FIRST  ( 1 + BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_500_FIRST )) )
-
-#define GET_LEN_PRD1_FIRST      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_2000_FIRST )) )
-
-#define GET_LEN_PRD2_FIRST      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_N_2000_FIRST)) )
-
-#define GET_LEN_PRD3_FIRST      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_FIRST )) )
-
-#define GET_LEN_PRD4_FIRST      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_FIRST )) )
-
-#define GET_LEN_PRD5_FIRST      (  BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 *  MODEM_LEN_N_2000_FIRST)) )
-
-//#define GET_LEN_PRD1_SYN_MIDLE  ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_500_MIDLE )) )
-
-//#define GET_LEN_PRD1_MIDLE      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_2000_MIDLE )) )
-
-//#define GET_LEN_PRD2_MIDLE      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_N_2000_MIDLE)) )
-
-//#define GET_LEN_PRD3_MIDLE      ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_MIDLE )) )
-
-//#define GET_LEN_PRD4_MIDLE     ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_MIDLE )) )
-
-#define GET_LEN_PRD5_MIDLE      (  BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 *  MODEM_LEN_N_2000_MIDLE)) )
-
-#define GET_LEN_PRD1_SYN_LAST   ( 1 + BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_500_LAST )) )
-
-#define GET_LEN_PRD1_LAST       ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_D_2000_LAST )) )
-
-#define GET_LEN_PRD2_LAST       ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_BPSK *  MODEM_LEN_N_2000_LAST)) )
-
-#define GET_LEN_PRD3_LAST       ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_1_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_LAST )) )
-
-#define GET_LEN_PRD4_LAST       ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_4 *  MODEM_LEN_N_2000_LAST )) )
-
-#define GET_LEN_PRD5_LAST       ( BITS_TO_BYTES(MODEM_TO_CODE_RATE_2_3(MODEM_QAM_16 *  MODEM_LEN_N_2000_LAST)) )
-
-#define	MODEM_SPEED_CNT			5//сколько скоросетй умеет модем
+#define	MODEM_SPEED_CNT								6//сколько скоросетй умеет модем
 // Параметры КСС
 typedef enum SIZE_OF_ENUM_UINT32
 {
@@ -108,25 +40,106 @@ typedef enum SIZE_OF_ENUM_UINT32
 	UCOS_KSS_RATE_PRD6 = (0x0005u),
 } ModemRate_t;
 
-#define MAX_SNR_PRD1_UP			0 //dB порог на повышение скорости начиная с которого работаем на второй скорости
+#define MAX_BYTES_PER_TX							(4000)
+#define MAX_SLOTS_PER_DATA_TX   					(40)
 
-#define MIN_SPEED               UCOS_KSS_RATE_PRD1
-#define MAX_SPEED               UCOS_KSS_RATE_PRD5
-#define MAX_SPEED_TYPE          UCOS_KSS_TYPE_NORM
+#define MIN_SNR_TO_USE_DIRECT_ROUTE					-7 //dB если на соседа с/ш ниже этого значения, значит нужно пытаться искать на него непрямые маршруты
+#define MAX_SNR_PRD1_UP								0 //dB порог на повышение скорости начиная с которого работаем на второй скорости
 
-#define SPEED_TO_SEPARATE_HDR   UCOS_KSS_RATE_PRD2 //скорость начиная с которой нужно заголовок посылать отдельным пакетом
-#define HIGH_SPEED_FOR_FEC      (UCOS_KSS_RATE_PRD4)
-#define LOW_SPEED_SLOTS_PER_FEC_BLOCK   (4)
-#define HIGH_SPEED_SLOTS_PER_FEC_BLOCK  (2)
+#define MIN_SPEED               					UCOS_KSS_RATE_PRD1
+#define MAX_SPEED               					UCOS_KSS_RATE_PRD5
+#define MAX_SPEED_TYPE          					UCOS_KSS_TYPE_NORM
 
+//#define SPEED_TO_SEPARATE_HDR   					UCOS_KSS_RATE_PRD2 //скорость начиная с которой нужно заголовок посылать отдельным пакетом
+//#define HIGH_SPEED_FOR_FEC      					(UCOS_KSS_RATE_PRD4)
+//#define LOW_SPEED_SLOTS_PER_FEC_BLOCK   			(4)
+//#define HIGH_SPEED_SLOTS_PER_FEC_BLOCK  			(2)
 
-#define CTRL_TX_SPEED           UCOS_KSS_RATE_PRD2
+#define CTRL_TX_SPEED           					UCOS_KSS_RATE_PRD2
 
-#define NORM_PWR_TH_RATE      	UCOS_KSS_RATE_PRD3 // начиная с какой скорости не нужно повышать мощность передачи (если скорость не выставлена вручную)
+#define SPEED_THR_TO_ALLOW_FRQ						(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
 
-#define SPEED_THR_TO_ALLOW_FRQ	(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
+#define GET_LEN_MAX_SPD								GET_LEN_PRD5
 
-#define GET_LEN_MAX_SPD			GET_LEN_PRD5
+// уровень мощности в текущем ТБ
+typedef enum SIZE_OF_ENUM_UINT32
+{
+	UCOS_KSS_POWER_LOWLOW = (0x0000u),	// малый  1 Вт
+	UCOS_KSS_POWER_LOW = (0x0001u),	// пониженный 20 Вт;
+	UCOS_KSS_POWER_NORM = (0x0002u),	// номинальный 150 Вт
+} ModemPower_t;
+
+#define MIN_POWER_IDX								UCOS_KSS_POWER_LOWLOW
+#define MAX_POWER_IDX								UCOS_KSS_POWER_NORM
+
+#define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
+#define MODEM_SLOT_DELAY                            2 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
+
+#if defined (__OMNET__)       // __OMNET__ Compiler
+#define MODEM_SYNCHR_SD_DELAY                       (MODEM_SYNCHR_DELAY)//x100nsec // время, которое выдает модем для пакета UCOS_KSS_TYPE_SINHR если нет временной задержки
+#define MODEM_CON_REQ_SD_DELAY                      (14900 - MODEM_TIME_PROTECT_SLOT_INTERV)//x100nsec // время, которое выдает модем для пакета UCOS_KSS_TYPE_TIME_MEAS если нет временной задержки
+
+#define MODEM_SYNCHR_TIME_CORRECTION_ERROR			(-396) 	//x100nsec //величина подобрана так, чтобы при приёме синхра вычисленное значение задержки совпадало с временем распространения сигнала в канале
+#define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(655) 	//x100nsec //величина подобрана так, чтобы при приёме запроса на подключение вычисленное значение задержки совпадало с временем распространения сигнала в канале
+#define MODEM_SYNCHR_DELAY_DEVIATION 				(-103)//(137) // (PRECISION_US_TO_NS учтена) в OMNET передача пакета синхр-ции занимает на столько мкс больше (т.к. chanel_len вычисляется с точностью до байта в SENDING)
+
+#else
+#define MODEM_SYNCHR_SD_DELAY                       (942*PRECISION_US_TO_NS) // время, которое выдает модем для пакета UCOS_KSS_TYPE_SINHR если нет временной задержки
+#define MODEM_CON_REQ_SD_DELAY                      (942*PRECISION_US_TO_NS) // время, которое выдает модем для пакета UCOS_KSS_TYPE_TIME_MEAS если нет временной задержки
+
+#define MODEM_SYNCHR_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
+#define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
+#endif//#if defined (__OMNET__)       // __OMNET__ Compiler
+
+#define PP_FRQ_PER_SLOT         					4
+#elif defined(MODEM_PANZYR_SM)
+
+#define GetLen_PRD1_SYNC(time_us)					((uint32_t)((((time_us) == 2000)*14) +  (((time_us) != 2000)* ((((time_us)*(0.045)) - 15) / 6.0)  )))
+#define GetLen_PRD1(time_us)						((uint32_t)(((((time_us) - 16)*(0.04496875)) - 35) / 6.0) )
+#define GetLen_PRD2(time_us)						((uint32_t)(((((time_us) - 16)*(0.04496875)) - 26) / 3.0) )
+#define GetLen_PRD3(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (2/3.0)) )
+#define GetLen_PRD4(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (4/3.0)) )
+#define GetLen_PRD5(time_us)						((uint32_t)((( (time_us)      *(0.045))      - 27) * (8/3.0)) )
+
+#define GET_MIN_SPEED_LEN(slots)					GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
+#define GET_SLOTS_MIN_SPEED							GetNumSlots_PRD1
+#define GET_SLOTS_MIN_SPEED_SYNC					GetNumSlots_PRD1_SYNC
+
+#define GetNumSlots_PRD1_SYNC(len, t_inr) 			(uint32_t)(((len<=14)*1) + ((len>14)*(((((((len)*6) + 15) / 0.045) / ((t_inr) * 1.0))) + 1)))
+#define GetNumSlots_PRD1(len, t_inr) 				(uint32_t)(((((((len)*6) + 35) / 0.04496875) + 16) / ((t_inr) * 1.0)) + 1)
+
+#define	MODEM_SPEED_CNT								5//сколько скоросетй умеет модем
+// Параметры КСС
+typedef enum SIZE_OF_ENUM_UINT32
+{
+	UCOS_KSS_RATE_PRD1 = (0x0000u),
+	UCOS_KSS_RATE_PRD2 = (0x0001u),
+	UCOS_KSS_RATE_PRD3 = (0x0002u),
+	UCOS_KSS_RATE_PRD4 = (0x0003u),
+	UCOS_KSS_RATE_PRD5 = (0x0004u),
+	UCOS_KSS_RATE_PRD6 = (0x0005u),
+} ModemRate_t;
+
+#define MAX_BYTES_PER_TX							(4000)
+#define MAX_SLOTS_PER_DATA_TX   					(40)
+
+#define MIN_SNR_TO_USE_DIRECT_ROUTE					-7 //dB если на соседа с/ш ниже этого значения, значит нужно пытаться искать на него непрямые маршруты
+#define MAX_SNR_PRD1_UP								0 //dB порог на повышение скорости начиная с которого работаем на второй скорости
+
+#define MIN_SPEED               					UCOS_KSS_RATE_PRD1
+#define MAX_SPEED               					UCOS_KSS_RATE_PRD5
+#define MAX_SPEED_TYPE          					UCOS_KSS_TYPE_NORM
+
+//#define SPEED_TO_SEPARATE_HDR   					UCOS_KSS_RATE_PRD2 //скорость начиная с которой нужно заголовок посылать отдельным пакетом
+//#define HIGH_SPEED_FOR_FEC      					(UCOS_KSS_RATE_PRD4)
+//#define LOW_SPEED_SLOTS_PER_FEC_BLOCK   			(4)
+//#define HIGH_SPEED_SLOTS_PER_FEC_BLOCK  			(2)
+
+#define CTRL_TX_SPEED           					UCOS_KSS_RATE_PRD2
+
+#define SPEED_THR_TO_ALLOW_FRQ						(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
+
+#define GET_LEN_MAX_SPD								GET_LEN_PRD5
 
 // уровень мощности в текущем ТБ
 typedef enum SIZE_OF_ENUM_UINT32
@@ -135,23 +148,40 @@ typedef enum SIZE_OF_ENUM_UINT32
 	UCOS_KSS_POWER_NORM = (0x0001u),	// номинальный
 } ModemPower_t;
 
-#define MIN_POWER		UCOS_KSS_POWER_LOW
-#define MAX_POWER		UCOS_KSS_POWER_NORM
+#define MIN_POWER_IDX								UCOS_KSS_POWER_LOW
+#define MAX_POWER_IDX								UCOS_KSS_POWER_NORM
 
 #define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
 #define MODEM_SLOT_DELAY                            2 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
 
+#if defined (__OMNET__)       // __OMNET__ Compiler
+#define MODEM_SYNCHR_SD_DELAY                       (MODEM_SYNCHR_DELAY)//x100nsec // время, которое выдает модем для пакета UCOS_KSS_TYPE_SINHR если нет временной задержки
+#define MODEM_CON_REQ_SD_DELAY                      (14900 - MODEM_TIME_PROTECT_SLOT_INTERV)//x100nsec // время, которое выдает модем для пакета UCOS_KSS_TYPE_TIME_MEAS если нет временной задержки
+
+#define MODEM_SYNCHR_TIME_CORRECTION_ERROR			(-396) 	//x100nsec //величина подобрана так, чтобы при приёме синхра вычисленное значение задержки совпадало с временем распространения сигнала в канале
+#define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(655) 	//x100nsec //величина подобрана так, чтобы при приёме запроса на подключение вычисленное значение задержки совпадало с временем распространения сигнала в канале
+#define MODEM_SYNCHR_DELAY_DEVIATION 				(-103)//(137) // (PRECISION_US_TO_NS учтена) в OMNET передача пакета синхр-ции занимает на столько мкс больше (т.к. chanel_len вычисляется с точностью до байта в SENDING)
+
+#else
+#define MODEM_SYNCHR_SD_DELAY                       (942*PRECISION_US_TO_NS) // время, которое выдает модем для пакета UCOS_KSS_TYPE_SINHR если нет временной задержки
+#define MODEM_CON_REQ_SD_DELAY                      (942*PRECISION_US_TO_NS) // время, которое выдает модем для пакета UCOS_KSS_TYPE_TIME_MEAS если нет временной задержки
+
+#define MODEM_SYNCHR_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
+#define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
+#endif//#if defined (__OMNET__)       // __OMNET__ Compiler
+
+#define PP_FRQ_PER_SLOT         					4
 #elif defined(MODEM_CC1101)
-#define PREAMBLE_BYTES			12
-#define SYNCWORD_BYTES			4
-#define LEN_BYTES			    2
-#define CRC_BYTES			    2
-#define GetLen_PRD1(Time)       ( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) / 2) - LEN_BYTES - CRC_BYTES ) )
-#define GetLen_PRD2(Time)       ( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) ) - LEN_BYTES - CRC_BYTES ) )
+#define PREAMBLE_BYTES								12
+#define SYNCWORD_BYTES								4
+#define LEN_BYTES			    					2
+#define CRC_BYTES			    					2
+#define GetLen_PRD1(Time)       					( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) / 2) - LEN_BYTES - CRC_BYTES ) )
+#define GetLen_PRD2(Time)       					( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) ) - LEN_BYTES - CRC_BYTES ) )
 
-#define GET_MIN_SPEED_LEN(slots)		GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
+#define GET_MIN_SPEED_LEN(slots)					GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
 
-#define	MODEM_SPEED_CNT			2//сколько скоросетй умеет модем
+#define	MODEM_SPEED_CNT								2//сколько скоросетй умеет модем
 
 // Параметры КСС
 typedef enum SIZE_OF_ENUM_UINT32
@@ -160,39 +190,43 @@ typedef enum SIZE_OF_ENUM_UINT32
 	UCOS_KSS_RATE_PRD2 = (0x0001u),
 } ModemRate_t;
 
-#define MAX_SNR_PRD1_UP			0 //dB порог на повышение скорости начиная с которого работаем на второй скорости
+#define MIN_SNR_TO_USE_DIRECT_ROUTE					-7 //dB если на соседа с/ш ниже этого значения, значит нужно пытаться искать на него непрямые маршруты
+#define MAX_SNR_PRD1_UP								0 //dB порог на повышение скорости начиная с которого работаем на второй скорости
 
-#define MIN_SPEED               UCOS_KSS_RATE_PRD1
-#define MAX_SPEED               UCOS_KSS_RATE_PRD2
-#define MAX_SPEED_TYPE          UCOS_KSS_TYPE_NORM
-
-
-#define CTRL_TX_SPEED           MIN_SPEED
+#define MIN_SPEED               					UCOS_KSS_RATE_PRD1
+#define MAX_SPEED               					UCOS_KSS_RATE_PRD2
+#define MAX_SPEED_TYPE          					UCOS_KSS_TYPE_NORM
 
 
-#define SPEED_THR_TO_ALLOW_FRQ	(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
+#define CTRL_TX_SPEED           					MIN_SPEED
 
-//#define GET_LEN_MAX_SPD(slots)			GetLen_PRD2((slots)*US_IN_IPS*PP_FRQ_PER_SLOT)
+
+#define SPEED_THR_TO_ALLOW_FRQ						(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
+
+//#define GET_LEN_MAX_SPD(slots)					GetLen_PRD2((slots)*US_IN_IPS*PP_FRQ_PER_SLOT)
 
 #define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
 #define MODEM_SLOT_DELAY                            0 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
 
+#define PP_FRQ_PER_SLOT         					1
 #elif defined(MODEM_CC1312)
-#define PREAMBLE_BYTES					4
-#define SYNCWORD_BYTES					4
-#define LEN_BYTES						2
-#define CRC_BYTES						2
-#define GetLen_PRD1(Time)				( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) / 2) - LEN_BYTES - CRC_BYTES ) )
-#define GetLen_PRD2(Time)				( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) ) - LEN_BYTES - CRC_BYTES ) )
-#define GetLen_PRD3(Time)				( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 700)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) * 2) - LEN_BYTES - CRC_BYTES ) )
+#define PREAMBLE_BYTES								4
+#define SYNCWORD_BYTES								4
+#define LEN_BYTES									2
+#define CRC_BYTES									2
+#define GetLen_PRD1(Time)							( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) / 2) - LEN_BYTES - CRC_BYTES ) )
+#define GetLen_PRD2(Time)							( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 600)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) ) - LEN_BYTES - CRC_BYTES ) )
+#define GetLen_PRD3(Time)							( (Time) < 1200 ? 0 : (uint32_t)( (((((Time) - 700)*0.061) - PREAMBLE_BYTES - SYNCWORD_BYTES) * 2) - LEN_BYTES - CRC_BYTES ) )
 
-#define GET_MIN_SPEED_LEN(slots)		GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
+#define GET_MIN_SPEED_LEN(slots)					GetLen_PRD1(((slots) * US_IN_IPS*PP_FRQ_PER_SLOT))
+#define GET_SLOTS_MIN_SPEED							GetNumSlots_PRD1
+#define GET_SLOTS_MIN_SPEED_SYNC					GetNumSlots_PRD1
 
-#define GetNumSlots_PRD1(len, t_inr)	(uint32_t)( ( ( (len) * 2000 + (2 * (LEN_BYTES + CRC_BYTES) + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 600) / ((t_inr) * 1.0) + 1)
-#define GetNumSlots_PRD2(len, t_inr)	(uint32_t)( ( ( (len) * 1000 + (LEN_BYTES + CRC_BYTES + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 600) / ((t_inr) * 1.0) + 1)
-#define GetNumSlots_PRD3(len, t_inr)	(uint32_t)( ( ( (len) * 500 + (((LEN_BYTES + CRC_BYTES) >> 1) + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 700) / ((t_inr) * 1.0) + 1)
+#define GetNumSlots_PRD1(len, t_inr)				(uint32_t)( ( ( (len) * 2000 + (2 * (LEN_BYTES + CRC_BYTES) + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 600) / ((t_inr) * 1.0) + 1)
+#define GetNumSlots_PRD2(len, t_inr)				(uint32_t)( ( ( (len) * 1000 + (LEN_BYTES + CRC_BYTES + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 600) / ((t_inr) * 1.0) + 1)
+#define GetNumSlots_PRD3(len, t_inr)				(uint32_t)( ( ( (len) * 500 + (((LEN_BYTES + CRC_BYTES) >> 1) + PREAMBLE_BYTES + SYNCWORD_BYTES) * 1000) / 61.0 + 700) / ((t_inr) * 1.0) + 1)
 
-#define	MODEM_SPEED_CNT					3//сколько скоростей умеет модем
+#define	MODEM_SPEED_CNT								3//сколько скоростей умеет модем
 
 // Параметры КСС
 typedef enum SIZE_OF_ENUM_UINT32
@@ -202,23 +236,23 @@ typedef enum SIZE_OF_ENUM_UINT32
 	UCOS_KSS_RATE_PRD3 = (0x0002u),
 } ModemRate_t;
 
-#define MAX_BYTES_PER_TX		(4047 - sizeof(uint16_t))//GET_LEN_MAX_SPD(MAX_SLOTS_PER_DATA_TX)
-#define MAX_SLOTS_PER_DATA_TX   (70)//calc_num_TB_from_bytes(MAX_BYTES_PER_TX, MAX_SPEED)//ModemCommand_t->count :6 бит -закостылили там 7 бит // maximum = SLOTS_PER_ALL_COMMON_DATA_SLOTS
+#define MAX_BYTES_PER_TX							(4047 - sizeof(uint16_t))//GET_LEN_MAX_SPD(MAX_SLOTS_PER_DATA_TX)
+#define MAX_SLOTS_PER_DATA_TX   					(70)//calc_num_TB_from_bytes(MAX_BYTES_PER_TX, MAX_SPEED)//ModemCommand_t->count :6 бит -закостылили там 7 бит // maximum = SLOTS_PER_ALL_COMMON_DATA_SLOTS
+
+#define MIN_SNR_TO_USE_DIRECT_ROUTE					-85 //dB если на соседа с/ш ниже этого значения, значит нужно пытаться искать на него непрямые маршруты
+#define MAX_SNR_PRD1_UP								-65 //dB порог на повышение скорости начиная с которого работаем на второй скорости
+
+#define MIN_SPEED               					UCOS_KSS_RATE_PRD1
+#define MAX_SPEED               					UCOS_KSS_RATE_PRD3
+#define MAX_SPEED_TYPE          					UCOS_KSS_TYPE_NORM
 
 
-#define MAX_SNR_PRD1_UP			-65 //dB порог на повышение скорости начиная с которого работаем на второй скорости
-
-#define MIN_SPEED               UCOS_KSS_RATE_PRD1
-#define MAX_SPEED               UCOS_KSS_RATE_PRD3
-#define MAX_SPEED_TYPE          UCOS_KSS_TYPE_NORM
+#define CTRL_TX_SPEED           					MIN_SPEED
 
 
-#define CTRL_TX_SPEED           MIN_SPEED
+#define SPEED_THR_TO_ALLOW_FRQ						(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
 
-
-#define SPEED_THR_TO_ALLOW_FRQ	(MAX_SPEED - NORM_PWR_TH_RATE)//(2u) //на сколько ступеней может снижаться скорость при возвращении частоты в сравнении от текущей широковещательной скорости на передаче
-
-//#define GET_LEN_MAX_SPD(slots)			GetLen_PRD3((slots)*US_IN_IPS*PP_FRQ_PER_SLOT)
+//#define GET_LEN_MAX_SPD(slots)					GetLen_PRD3((slots)*US_IN_IPS*PP_FRQ_PER_SLOT)
 
 // уровень мощности в текущем ТБ
 typedef enum SIZE_OF_ENUM_UINT32
@@ -242,8 +276,8 @@ typedef enum SIZE_OF_ENUM_UINT32
 	UCOS_POWER_13dbm ,
 } ModemPower_t;
 
-#define MIN_POWER_IDX		UCOS_POWER_m11dbm
-#define MAX_POWER_IDX		UCOS_POWER_13dbm
+#define MIN_POWER_IDX								UCOS_POWER_m11dbm
+#define MAX_POWER_IDX								UCOS_POWER_13dbm
 
 #define MODEM_SYNCHR_DELAY                          (1677*PRECISION_US_TO_NS) // через сколько после приема выдается CURRENTSTATUS
 #define MODEM_SLOT_DELAY                            0 //через сколько ИНР после приема команды от нас модем ее исполнит( ((MODEM_TASK_DELAY - 1) / TIME_FOR_SLOT) + 1 ) // должно быть < SLOTS_ON_SUPERSLOT //количество транспортных слотов, которые можно успеть принять/передать во время кодирования/декодирования принятого
@@ -263,23 +297,22 @@ typedef enum SIZE_OF_ENUM_UINT32
 #define MODEM_CON_REQ_TIME_CORRECTION_ERROR			(-3*PRECISION_US_TO_NS) 	//x100nsec
 #endif//#if defined (__OMNET__)       // __OMNET__ Compiler
 
+#define PP_FRQ_PER_SLOT         1
 #else
 #error
 #endif//#elif defined(MODEM_CC1101)
 
 
-#define SYNHR_TX_SPEED          MIN_SPEED
-#define BEACON_TX_SPEED         MIN_SPEED
-#define CONN_REQ_TX_SPEED       MIN_SPEED
-#define VOC_TX_SPEED            MIN_SPEED
+#define SYNHR_TX_SPEED          					MIN_SPEED
+#define BEACON_TX_SPEED         					MIN_SPEED
+#define CONN_REQ_TX_SPEED       					MIN_SPEED
+#define VOC_TX_SPEED            					MIN_SPEED
 
-#define PP_FRQ_PER_SLOT         1
+#define ALLOW_ALL_FREQS         					0xFFFF // нет выколотых частот
 
-#define ALLOW_ALL_FREQS         0xFFFF // нет выколотых частот
-
-#define FRQ_COMMON_CH           10//MAX_RADIO_CONNECTIONS
-#define FRQ_LISTENING           1//((mac.addr + restart_cntr) % BR_FREQ_NUM) //1 //для уменьшения вероятности коллизий при подключении прослушиваемая частота зависит от адреса
-#define FRQ_FF_INDEX            0//индекс частоты ФЧ для массива номеров частот из которого будем брать частоту заданную для ФЧ
+#define FRQ_COMMON_CH           					10//MAX_RADIO_CONNECTIONS
+#define FRQ_LISTENING           					1//((mac.own.addr + num_restarts) % BR_FREQ_NUM) //1 //для уменьшения вероятности коллизий при подключении прослушиваемая частота зависит от адреса
+#define FRQ_FF_INDEX            					0//индекс частоты ФЧ для массива номеров частот из которого будем брать частоту заданную для ФЧ
 
 
 #if !defined (__TI_CCS__)      // TI CCS Compiler
@@ -328,15 +361,12 @@ typedef enum SIZE_OF_ENUM_UINT32
 // Определяет необходимо ли подстраивать ИНР при синхронизации
 typedef enum SIZE_OF_ENUM_UINT32
 {
-	UCOS_KSS_TUNE_NOT_SYN = (0u), // без подстройки
-	UCOS_KSS_TUNE_SYN = (1u), // с подстройкой
-//	UCOS_KSS_TUNE_INVERSE_SYN = (2u), // с “обратной” подстройкой
-} ModemTune_t;
+  UCOS_KSS_NEED_NEW_SYN     = (0u), // обязательно успешно принимать синхронизацию перед приемом данных
+  UCOS_KSS_KEEP_OLD_SYN     = (1u), // можно принимать данные без синхронизации
+} ModemSyncKeep_t;
 
 
-
-
-#define POWER_TABLE_SZ      (MAX_POWER_IDX + 1)
+#define POWER_TABLE_SZ      						(MAX_POWER_IDX + 1)
 
 // Общий формат команды на УЦОС
 typedef struct
@@ -350,36 +380,59 @@ typedef struct
 
 
 #pragma pack(push, 1)
+typedef union
+{
+  struct
+  {
+    int16_t delay;//на сколько сместиться при синхронизации, если UCOS_KSS_TYPE_SINHR;Используется для удержания синхронизации в НП.
+#if defined(MODEM_SBS) || defined(MODEM_PANZYR_SM)
+    uint16_t AGC;//Используется для удержания синхронизации в НП.
+#endif
+  };
+#if defined(MODEM_SBS) || defined(MODEM_PANZYR_SM)
+  uint32_t U;
+#else
+  uint16_t U;
+#endif
+} TmShft_AGC_t;
+
 typedef struct
 {
 	ModemRate_t rate :3;   // скорость передачи
 	ModemDir_t tr :3;   // направление канала передачи
-	ModemType_t type :2;   // тип
-#if defined(MODEM_PANZYR_SM)
-	ModemPower_t power :1;   // уровень мощности//в битность должна влазить MAX_POWER
-	uint32_t count :7;   // количество ТБ в команде //у Вадима - количество слотов в данном ТБ
+#if defined(MODEM_SBS)
+	ModemType_t type :1;   // тип
+	uint32_t rsrvd1 :1;
+	uint32_t count :6;   // количество ТБ в команде //у Вадима - количество слотов в данном ТБ
 	uint32_t TU :6; //у Вадима -  Определяет номер транспортного блока  (Принимает значения 0 – 39.) ТБ – группа последовательно расположенных слотов с одинаковыми параметрами. Предназначается для приема/передачиданных от/к одному абоненту.
-	uint32_t delay :4;//5; //  Delay  Используется только в СтП. Указывает длительность всех слотов внутри ТБ в ИПС. 15 ИПС - стандартный ИНР; 16…29 ИПС - удлинненный.
-	uint32_t SNum :4;   // Номер синхропосылки при поиске синхронизации  0…14
-	ModemTune_t Tune :2; // Определяет, необходимо ли подстраивать ИНР при приеме синхропосылки. 0 – без подстройки; 1 – с подстройкой; 2 – с “обратной” подстройкой.
-//	uint32_t rsrvd0 :1;
+	ModemPower_t power :2;   // уровень мощности//в битность должна влазить MAX_POWER
+	ModemSyncKeep_t SyncKeep:1;//Флаг удержания синхронизации //Если 0, то обязательно успешно принимать синхронизацию перед приемом данных, иначе можно принимать данные без синхронизации.
+	uint32_t rsrvd0 :9;
+	TmShft_AGC_t          TmShft_AGC;
+#elif defined(MODEM_PANZYR_SM)
+	ModemType_t type :1;   // тип
+	ModemPower_t power :1;   // уровень мощности//в битность должна влазить MAX_POWER
+	uint32_t count :6;   // количество ТБ в команде //у Вадима - количество слотов в данном ТБ
+	uint32_t TU :6; //у Вадима -  Определяет номер транспортного блока  (Принимает значения 0 – 39.) ТБ – группа последовательно расположенных слотов с одинаковыми параметрами. Предназначается для приема/передачиданных от/к одному абоненту.
+	ModemSyncKeep_t SyncKeep:1;//Флаг удержания синхронизации //Если 0, то обязательно успешно принимать синхронизацию перед приемом данных, иначе можно принимать данные без синхронизации.
+	uint32_t rsrvd0  :11;
+	TmShft_AGC_t          TmShft_AGC;
 #elif defined(MODEM_CC1101)
-	ModemPower_t power :1;   // уровень мощности//в битность должна влазить MAX_POWER
-	uint32_t count :8;//:7;   // количество ТБ в команде //у Вадима - количество слотов в данном ТБ
-	uint32_t TU :6; //у Вадима -  Определяет номер транспортного блока  (Принимает значения 0 – 39.) ТБ – группа последовательно расположенных слотов с одинаковыми параметрами. Предназначается для приема/передачиданных от/к одному абоненту.
-	uint32_t delay :4;//5; //  Delay  Используется только в СтП. Указывает длительность всех слотов внутри ТБ в ИПС. 15 ИПС - стандартный ИНР; 16…29 ИПС - удлинненный.
-	uint32_t SNum :4;   // Номер синхропосылки при поиске синхронизации  0…14
-	ModemTune_t Tune :2; // Определяет, необходимо ли подстраивать ИНР при приеме синхропосылки. 0 – без подстройки; 1 – с подстройкой; 2 – с “обратной” подстройкой.
-//	uint32_t rsrvd0 :1;
-#elif defined(MODEM_CC1312)
+	ModemType_t type :2;   // тип
 	ModemPower_t power :8;   // уровень мощности//в битность должна влазить MAX_POWER
 	uint32_t count :8;   // количество ТБ в команде //у Вадима - количество слотов в данном ТБ
 	uint32_t TU :6; //у Вадима -  Определяет номер транспортного блока  (Принимает значения 0 – 39.) ТБ – группа последовательно расположенных слотов с одинаковыми параметрами. Предназначается для приема/передачиданных от/к одному абоненту.
-//	uint32_t delay :1;//5; //  Delay  Используется только в СтП. Указывает длительность всех слотов внутри ТБ в ИПС. 15 ИПС - стандартный ИНР; 16…29 ИПС - удлинненный.
 	uint32_t SNum :1;   // Номер синхропосылки при поиске синхронизации  0…14
 	ModemTune_t Tune :1; // Определяет, необходимо ли подстраивать ИНР при приеме синхропосылки. 0 – без подстройки; 1 – с подстройкой; 2 – с “обратной” подстройкой.
 	int16_t delay; //на сколько сместиться при синхронизации, если UCOS_KSS_TYPE_SINHR
-//	uint32_t rsrvd0 :1;
+#elif defined(MODEM_CC1312)
+	ModemType_t type :2;   // тип
+	ModemPower_t power :8;   // уровень мощности//в битность должна влазить MAX_POWER
+	uint32_t count :8;   // количество ТБ в команде //у Вадима - количество слотов в данном ТБ
+	uint32_t TU :6; //у Вадима -  Определяет номер транспортного блока  (Принимает значения 0 – 39.) ТБ – группа последовательно расположенных слотов с одинаковыми параметрами. Предназначается для приема/передачиданных от/к одному абоненту.
+	ModemSyncKeep_t SyncKeep:1; // Определяет, необходимо ли подстраивать ИНР при приеме синхропосылки. 0 – без подстройки; 1 – с подстройкой; 2 – с “обратной” подстройкой.
+	uint32_t rsrvd0 :1;
+	TmShft_AGC_t          TmShft_AGC;
 #else
 #error
 #endif//#elif defined(MODEM_CC1101)
@@ -436,7 +489,13 @@ typedef struct
 	uint16_t id;                     // Идентификатор команды  // у Вадима - см  ucos_fset_id_t
 	uint16_t num_freq;               // Номер комплекта частот
 	uint16_t CommandWords_CNT;    //у Вадима -  num_tb;		// Количество транспортных блоков в команде, транспортный блок - это модемный блок с синхропосылкой
+#if defined(MODEM_SBS)
+	uint16_t circ;                   // Цикличность 0 – обычная работа с конфигурацией каждого слота;	1 – циклический повтор.
+#elif defined(MODEM_PANZYR_SM)
 	uint16_t vks;                    // Номер сети
+#else
+	uint16_t reserv_;
+#endif
 	ModemCommand_t CommandsArray[];                    // Командное слово слота
 	/*  union{                                                      //и рабочие частоты
 	 ModemFRQ_Coef_TypeDef FrqCoefArray[1];
@@ -542,15 +601,6 @@ extern int16_t thresholds_rate_up[MODEM_SPEED_CNT-1];
 
 #if !defined (__OMNET__)
 //!!!CONVERTER_START_FIELD_->
-
-#if defined(MODEM_PANZYR_SM)
-uint16_t GetLen_PRD1_SYN(uint16_t Slots);
-uint16_t GetLen_PRD1(uint16_t Slots);
-uint16_t GetLen_PRD2(uint16_t Slots);
-uint16_t GetLen_PRD3(uint16_t Slots);
-uint16_t GetLen_PRD4(uint16_t Slots);
-uint16_t GetLen_PRD5(uint16_t Slots);
-#endif//#if defined(MODEM_PANZYR_SM)
 
 uint16_t GetLen_fromRate(uint16_t Slots, ModemRate_t rate, ModemType_t type);
 
